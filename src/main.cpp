@@ -11,4 +11,14 @@ int main( ){
 	// pass in width and height too:
 	ofRunApp(new ofApp());
 	
+
+	// PS3Eye-Binocular-SLAM
+	/*
+	 *	Step 1) Mount two PS3 Eye cameras on a rigid board. 
+	 *	Step 2) Slowly wave board around room. 
+	 *	Step 3) ??? 
+	 *	Step 4) Look at shiny new photo-textured 3D model of room. 
+	 *
+	 *	This project is primarily concerned with Step 3, but will additionally include notes from steps 1, 2, and 4.
+	 */
 }
