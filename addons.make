@@ -1,2 +1,2 @@
-ofxOpenCv
+ofxKinect
 ofxImGui

@@ -1,6 +1,5 @@
 // source code from https://github.com/inspirit/PS3EYEDriver
 #include "ps3eye.h"
-#include "libusb.h"
 
 #include <thread>
 #include <mutex>
@@ -302,42 +301,7 @@ class USBMgr
 	 ~USBMgr();
 
 	static std::shared_ptr<USBMgr>  instance();
-	int listDevices(std::vector<PS3EYECam::PS3EYERef>& list)
-	{
-		libusb_device *dev;
-		libusb_device **devs;
-		libusb_device_handle *devhandle;
-		int i = 0;
-		int cnt;
-
-		cnt = (int)libusb_get_device_list(usb_context, &devs);
-
-		if (cnt < 0) {
-			debug("Error Device scan\n");
-		}
-
-		cnt = 0;
-		while ((dev = devs[i++]) != NULL)
-		{
-			struct libusb_device_descriptor desc;
-			libusb_get_device_descriptor(dev, &desc);
-			if (desc.idVendor == PS3EYECam::VENDOR_ID && desc.idProduct == PS3EYECam::PRODUCT_ID)
-			{
-				int err = libusb_open(dev, &devhandle);
-				if (err == 0)
-				{
-					libusb_close(devhandle);
-					list.push_back(PS3EYECam::PS3EYERef(new PS3EYECam(dev)));
-					libusb_ref_device(dev);
-					cnt++;
-				}
-			}
-		}
-
-		libusb_free_device_list(devs, 1);
-
-		return cnt;
-	}
+    int listDevices(std::vector<PS3EYECam::PS3EYERef>& list);
 	void cameraStarted();
 	void cameraStopped();
 
@@ -421,6 +385,43 @@ void USBMgr::transferThreadFunc()
 	{
 		libusb_handle_events_timeout_completed(usb_context, &tv, NULL);
 	}
+}
+
+int USBMgr::listDevices( std::vector<PS3EYECam::PS3EYERef>& list )
+{
+	libusb_device *dev;
+	libusb_device **devs;
+	libusb_device_handle *devhandle;
+    int i = 0;
+    int cnt;
+
+    cnt = (int)libusb_get_device_list(usb_context, &devs);
+
+	if (cnt < 0) {
+		debug("Error Device scan\n");
+	}
+
+    cnt = 0;
+    while ((dev = devs[i++]) != NULL) 
+	{
+		struct libusb_device_descriptor desc;
+		libusb_get_device_descriptor(dev, &desc);
+		if (desc.idVendor == PS3EYECam::VENDOR_ID && desc.idProduct == PS3EYECam::PRODUCT_ID)
+		{
+			int err = libusb_open(dev, &devhandle);
+			if (err == 0)
+			{
+				libusb_close(devhandle);
+				list.push_back( PS3EYECam::PS3EYERef( new PS3EYECam(dev) ) );
+				libusb_ref_device(dev);
+				cnt++;
+			}
+		}
+	}
+
+	libusb_free_device_list(devs, 1);
+
+    return cnt;
 }
 
 static void LIBUSB_CALL transfer_completed_callback(struct libusb_transfer *xfr);
