@@ -5,6 +5,7 @@
 #include "ofxImGui.h"
 #include "libusb.h"
 #include "ps3eye_capi.h"
+#include "scannerEye.h"
 //#include "ofxCv.h"
 //#include "ofxOpenCv.h"
 
@@ -55,7 +56,9 @@ class ofApp : public ofBaseApp{
 		void ps3EyeStatusDraw();
 		bool camStatus = true;
 
-		ps3eye_t* firstCam;
+		//ps3eye_t* firstCam;
+		scannerEye* firstCam;
+		scannerEye* secondCam;
 		int numberOfCams; // number of PS3 Eye Cameras attached
 
 		ofPixels leftEyeFrame;

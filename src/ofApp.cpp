@@ -47,13 +47,48 @@ void ofApp::initCams()
 {
 	ps3eye_init();
 	numberOfCams = ps3eye_count_connected();
-	firstCam = ps3eye_open(0, cam_width, cam_height, cam_refresh, PS3EYE_FORMAT_RGB); // to change, close and reopen camera?
+	// for (int i = 0; i < numberOfCams; i++) {init Cam[i]} sort of thing
+	// OR
+	// if (numberOfCams > 0) {init first AND if (nubmerOfCams > 1) {init Second)
+	// some way of choosing other cameras? probably don't need to prepare for that --
+	// goal of this is to be standalone single function software/hardware. Can
+	// let others modify as needed if they desire different functionality.
+	//firstCam = ps3eye_open(0, cam_width, cam_height, cam_refresh, PS3EYE_FORMAT_RGB); // to change, close and reopen camera?
+	if (numberOfCams > 0)
+	{
+		firstCam = new scannerEye();
+		firstCam->initCam(0, 640, 480, 60);
+		if (numberOfCams > 1)
+		{
+			secondCam = new scannerEye();
+			secondCam->initCam(1, 640, 480, 60);
+		}
+	}
+
 }
+
+/*void ofApp::updateCams()
+{
+	// if numberOfCams = 0; exit gracefully
+	// if numberOfCams = 1; remove any extras gracefully
+	// if numberOfCams = 2; ensure both cameras are initialized and rendering
+}*/
 
 void ofApp::deInitCams()
 {
-	ps3eye_close(firstCam);
-	ps3eye_uninit();
+	//ps3eye_close(firstCam);
+	//ps3eye_uninit();
+	if (firstCam)
+	{
+		firstCam->deInitCam();
+		delete firstCam;
+	}
+	if (secondCam)
+	{
+		secondCam->deInitCam();
+		delete secondCam;
+	}
+
 }
 
 void ofApp::leftFrameHandler()
@@ -87,7 +122,8 @@ void ofApp::leftFrameDraw()
 void ofApp::update(){
 	//cam1.update();
 	//unsigned char* leftPixels = NULL;
-	ps3eye_grab_frame(firstCam, leftPixels);
+	//ps3eye_grab_frame(firstCam, leftPixels);
+	ps3eye_grab_frame(firstCam->camInstance, leftPixels);
 	//ps3eye_grab_frame(firstCam, leftEyeFrame.getData());
 
 	leftEyeFrame.setFromPixels(leftPixels, 640, 480, 3);
