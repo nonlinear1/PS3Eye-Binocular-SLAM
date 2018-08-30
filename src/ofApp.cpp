@@ -123,10 +123,10 @@ void ofApp::update(){
 	//cam1.update();
 	//unsigned char* leftPixels = NULL;
 	//ps3eye_grab_frame(firstCam, leftPixels);
-	ps3eye_grab_frame(firstCam->camInstance, leftPixels);
-	//ps3eye_grab_frame(firstCam, leftEyeFrame.getData());
+	//ps3eye_grab_frame(firstCam->camInstance, leftPixels);
+	
 
-	leftEyeFrame.setFromPixels(leftPixels, 640, 480, 3);
+	leftEyeFrame.setFromPixels(firstCam->grabRawFrame(), 640, 480, 3);
 
 	//firstCam->ps32eyeref->getLastFramePointer();
 	// iterate over unsigned char* and add to ofPixels?

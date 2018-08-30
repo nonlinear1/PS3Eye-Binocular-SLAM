@@ -71,6 +71,10 @@ class ofApp : public ofBaseApp{
 		
 		//ofVideoGrabber cam1;
 
+		// display formats: solo camera | double camera
+		// solo camera: function to switch between them
+		// double camera: function to swap left/right
+
 		ofImage leftFrame;
 		ofImage rightFrame;
 

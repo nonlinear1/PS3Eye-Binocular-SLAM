@@ -29,3 +29,9 @@ void scannerEye::deInitCam()
 					 // do nothing if there are any other pseye_t *
 					 // objects still running -- can't hurt to try freeing resources!
 }
+
+unsigned char* scannerEye::grabRawFrame()
+{
+	ps3eye_grab_frame(camInstance, camRawPixels);
+	return camRawPixels;
+}

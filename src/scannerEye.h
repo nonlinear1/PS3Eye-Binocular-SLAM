@@ -19,6 +19,7 @@ class scannerEye //: public ps3eye::PS3EYECam
 		int cam_refresh;// = 60;
 		void initCam(int = 0, int = 640, int = 480, int = 60);
 		void deInitCam();
+		unsigned char* grabRawFrame();
 		bool camStatus = true;
 
 		ps3eye_t* camInstance;
