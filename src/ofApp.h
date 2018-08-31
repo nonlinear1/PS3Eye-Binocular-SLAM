@@ -6,8 +6,8 @@
 #include "libusb.h"
 #include "ps3eye_capi.h"
 #include "scannerEye.h"
-//#include "ofxCv.h"
-//#include "ofxOpenCv.h"
+#include "ofxOpenCv.h"
+#include "ofxCv.h"
 
 class ofApp : public ofBaseApp{
 
@@ -16,10 +16,10 @@ class ofApp : public ofBaseApp{
 		void update();
 		void draw();
 		void drawCameraSettingsWidget();
-		void leftFrameHandler();
 		void leftFrameDraw();
 		void rightFrameDraw();
-		//void prepareRenderField();
+		void frameUpdater();
+
 
 		void keyPressed(int key);
 		void keyReleased(int key);
@@ -35,10 +35,9 @@ class ofApp : public ofBaseApp{
 		void exit();
 
 		// opencv stuff
-		//ofPixels gray, edge, sobel;
 		/*
-		Mat source, source_grey;
-		Mat dest, detected_edges;
+		cv::Mat source, source_grey;
+		cv::Mat dest, detected_edges;
 		
 		int edgeThresh = 1;
 		int lowThreshold;
@@ -56,18 +55,12 @@ class ofApp : public ofBaseApp{
 		void deInitCams();
 		void drawCameraStatus();
 		
+		
 		scannerEye* leftCam;
 		scannerEye* rightCam;
 		int numberOfCams; // number of PS3 Eye Cameras attached
 
-		ofPixels leftEyeFrame;
-		ofTexture leftDrawFrame;
-
-		ofPixels rightEyeFrame;
-		ofTexture rightDrawFrame;
-		//unsigned char leftPixels[921600]; //= NULL;
-		unsigned char* leftPixels;
-		unsigned char* rightPixels; // set size when initializing cameras
+		
 		// back to our stuff
 		
 		ofxImGui::Gui gui;
@@ -77,10 +70,21 @@ class ofApp : public ofBaseApp{
 		bool leftCameraDraw = false;
 		bool rightCameraDraw = false;
 		
-		ofImage leftFrame;
-		ofImage rightFrame;
+		// image + frame vars
 
-		//float testFloat = 23.0f;
+		unsigned char* leftPixels; // stores raw image data, pixel by pixel
+		unsigned char* rightPixels;
+
+		ofPixels leftEyeFrame;
+		ofTexture leftDrawFrame;
+
+		ofPixels rightEyeFrame;
+		ofTexture rightDrawFrame;
+
+		cv::Mat leftMat;
+		cv::Mat rightMat;
+
+		
 
 		// Widget variables
 		bool cameraSettingsWidget = true;

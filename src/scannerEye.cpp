@@ -20,10 +20,12 @@ void scannerEye::initCam(int ps3eyeID, int width, int height, int refresh) // pa
 	cam_height = height;
 	cam_refresh = refresh;
 	camInstance = ps3eye_open(camID, cam_width, cam_height, cam_refresh, PS3EYE_FORMAT_RGB);
+	camRawPixels = new unsigned char[cam_width * cam_height * 3];
 }
 
 void scannerEye::deInitCam()
 {
+	delete camRawPixels;
 	ps3eye_close(camInstance);
 	ps3eye_uninit(); // library specifically mentions this function will
 					 // do nothing if there are any other pseye_t *

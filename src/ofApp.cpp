@@ -4,8 +4,8 @@
 void ofApp::setup(){
 	
 	using namespace ps3eye;
-	//using namespace ofxCv;
-	//using namespace cv;
+	using namespace ofxCv;
+	using namespace cv;
 
 	gui.setup();
 	ofSetWindowTitle("prototype build--bmp18");
@@ -97,17 +97,8 @@ void ofApp::deInitCams()
 
 }
 
-void ofApp::leftFrameHandler()
-{
-	leftFrame.load("./images/quack.jpg");
-
-	//leftFrame = new CVEye(0, ((PS3EyePlugin *) eyeDriver), true);
-}
-
 void ofApp::leftFrameDraw()
-{
-	//leftFrame.draw(100, 100, cam_width, cam_height); // left frame at (0,0) right frame at (640,0)
-	//leftDrawFrame.draw(0, 0, 640, 480); 
+{ 
 	leftDrawFrame.loadData(leftEyeFrame);
 	leftDrawFrame.draw(0, 0, leftCam->cam_width, leftCam->cam_height);
 
@@ -126,6 +117,26 @@ void ofApp::leftFrameDraw()
 
 void ofApp::rightFrameDraw()
 {
+	// IF windowWidth > leftCamWidth + rightCamWidth THEN draw each at size
+	// ELSE: draw each at windowWidth/2, with the proper aspect ratio
+	/*
+	if (ofGetWindowWidth() >= (leftCam->cam_width + rightCam->cam_width))
+	{
+		if (ofGetWindowWidth() > (leftCam->cam_width * 2))
+		{
+			ofSetWindowShape(leftCam->cam_width * 2, ofGetWindowHeight());
+		}
+		rightDrawFrame.loadData(rightEyeFrame);
+		rightDrawFrame.draw(leftCam->cam_width, 0, rightCam->cam_width, rightCam->cam_height);
+	}
+	else
+	{
+		int ratio = (ofGetWindowWidth() / 2) / leftCam->cam_width;
+		rightDrawFrame.loadData(rightEyeFrame);
+		rightDrawFrame.draw(leftCam->cam_width*ratio, 0, rightCam->cam_width*ratio, rightCam->cam_height*ratio);
+	}
+	*/
+
 	rightDrawFrame.loadData(rightEyeFrame);
 	rightDrawFrame.draw(leftCam->cam_width, 0, rightCam->cam_width, rightCam->cam_height);
 }
@@ -137,31 +148,24 @@ void ofApp::update(){
 	//ps3eye_grab_frame(firstCam, leftPixels);
 	//ps3eye_grab_frame(firstCam->camInstance, leftPixels);
 	
+	
+	frameUpdater(); // updates left and right frames
+}
+
+void ofApp::frameUpdater()
+{
 	// if we're drawing the cameras directly:
-	//leftEyeFrame.setFromPixels(leftCam->grabRawFrame(), leftCam->cam_width, leftCam->cam_height, 3);
-	//rightEyeFrame.setFromPixels(rightCam->grabRawFrame(), rightCam->cam_width, rightCam->cam_height, 3);
-	// IF windowWidth > leftCamWidth + rightCamWidth THEN draw each at size
-	// ELSE: draw each at windowWidth/2, with the proper aspect ratio
-	if (ofGetWindowWidth() >= (leftCam->cam_width + rightCam->cam_width))
-	{
-		if (ofGetWindowWidth() > (leftCam->cam_width * 2))
-		{
-			ofSetWindowShape(leftCam->cam_width * 2, ofGetWindowHeight());
-		}
-		leftEyeFrame.setFromPixels(leftCam->grabRawFrame(), leftCam->cam_width, leftCam->cam_height, 3);
-		rightEyeFrame.setFromPixels(rightCam->grabRawFrame(), rightCam->cam_width, rightCam->cam_height, 3);
-	}
-	else
-	{
-		int ratio = (ofGetWindowWidth() / 2) / leftCam->cam_width;
-		leftEyeFrame.setFromPixels(leftCam->grabRawFrame(), leftCam->cam_width * ratio, leftCam->cam_height * ratio, 3);
-		rightEyeFrame.setFromPixels(rightCam->grabRawFrame(), rightCam->cam_width * ratio, rightCam->cam_height * ratio, 3);
-	}
+	leftEyeFrame.setFromPixels(leftCam->grabRawFrame(), leftCam->cam_width, leftCam->cam_height, 3);
+	rightEyeFrame.setFromPixels(rightCam->grabRawFrame(), rightCam->cam_width, rightCam->cam_height, 3);
+
+	leftMat = ofxCv::toCv(leftEyeFrame);
+	rightMat = ofxCv::toCv(rightEyeFrame);
 
 	// if we're using openCV and stuff, render a composite first, then send to leftEyeFrame etc.
 	// ...or render to a FBO and just do that? That would fit nicely in a composite-maker function
-
 }
+
+// toMat() function
 
 //--------------------------------------------------------------
 void ofApp::draw(){
@@ -169,6 +173,7 @@ void ofApp::draw(){
 	if (leftCameraDraw)
 	{
 		leftFrameDraw();
+		// use toOf(mat, ofImage) and ofImage.update() to draw back to ofImage? 
 	}
 	if (rightCameraDraw)
 	{

@@ -1,2 +1,4 @@
 ofxKinect
+ofxOpenCv
 ofxImGui
+ofxCv
