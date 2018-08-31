@@ -15,9 +15,10 @@ class ofApp : public ofBaseApp{
 		void setup();
 		void update();
 		void draw();
-		void drawSettingsWidget();
+		void drawCameraSettingsWidget();
 		void leftFrameHandler();
 		void leftFrameDraw();
+		void rightFrameDraw();
 		//void prepareRenderField();
 
 		void keyPressed(int key);
@@ -53,31 +54,35 @@ class ofApp : public ofBaseApp{
 		int cam_refresh = 60;
 		void initCams();
 		void deInitCams();
-		void ps3EyeStatusDraw();
-		bool camStatus = true;
-
-		//ps3eye_t* firstCam;
-		scannerEye* firstCam;
-		scannerEye* secondCam;
+		void drawCameraStatus();
+		
+		scannerEye* leftCam;
+		scannerEye* rightCam;
 		int numberOfCams; // number of PS3 Eye Cameras attached
 
 		ofPixels leftEyeFrame;
 		ofTexture leftDrawFrame;
-		unsigned char leftPixels[921600]; //= NULL;
+
+		ofPixels rightEyeFrame;
+		ofTexture rightDrawFrame;
+		//unsigned char leftPixels[921600]; //= NULL;
+		unsigned char* leftPixels;
+		unsigned char* rightPixels; // set size when initializing cameras
 		// back to our stuff
 		
 		ofxImGui::Gui gui;
 		ImVec4 backgroundColor;
 		
-		//ofVideoGrabber cam1;
-
-		// display formats: solo camera | double camera
-		// solo camera: function to switch between them
-		// double camera: function to swap left/right
-
+		
+		bool leftCameraDraw = false;
+		bool rightCameraDraw = false;
+		
 		ofImage leftFrame;
 		ofImage rightFrame;
 
-		float testFloat = 23.0f;
-		bool settingsWidget = true;
+		//float testFloat = 23.0f;
+
+		// Widget variables
+		bool cameraSettingsWidget = true;
+		bool camStatusWidget = true;
 };

@@ -30,8 +30,11 @@ void scannerEye::deInitCam()
 					 // objects still running -- can't hurt to try freeing resources!
 }
 
+// grabs and returns raw image from camera
+// to do: functions for bgr format, function to return opencv mat rather than raw image
 unsigned char* scannerEye::grabRawFrame()
 {
 	ps3eye_grab_frame(camInstance, camRawPixels);
+	//printf((char*)camRawPixels);
 	return camRawPixels;
 }

@@ -30,13 +30,11 @@ void ofApp::setup(){
 
 	// setup GUI or imgui stuff if needed
 
-	//cam1.setup(640, 480);
-
 	initCams();
 
 	// let image handlers manage getting images -- from cameras, from disk -- always two (right is null if need be)
 	// but for now just load a file
-	leftFrameHandler();
+	//leftFrameHandler();
 	
 }
 
@@ -56,12 +54,18 @@ void ofApp::initCams()
 	//firstCam = ps3eye_open(0, cam_width, cam_height, cam_refresh, PS3EYE_FORMAT_RGB); // to change, close and reopen camera?
 	if (numberOfCams > 0)
 	{
-		firstCam = new scannerEye();
-		firstCam->initCam(0, 640, 480, 60);
+		leftCam = new scannerEye();
+		leftCam->initCam(0, 640, 480, 60);
+		// allocate array here, delete in deinit
+		leftPixels = new unsigned char[leftCam->cam_width * leftCam->cam_height * 3]; // raw image size is (width * height * color channels per pixel) bytes
+		leftCameraDraw = true;
+
 		if (numberOfCams > 1)
 		{
-			secondCam = new scannerEye();
-			secondCam->initCam(1, 640, 480, 60);
+			rightCam = new scannerEye();
+			rightCam->initCam(1, 640, 480, 60);
+			rightPixels = new unsigned char[rightCam->cam_width * rightCam->cam_height * 3];
+			rightCameraDraw = true;
 		}
 	}
 
@@ -78,15 +82,17 @@ void ofApp::deInitCams()
 {
 	//ps3eye_close(firstCam);
 	//ps3eye_uninit();
-	if (firstCam)
+	if (leftCam)
 	{
-		firstCam->deInitCam();
-		delete firstCam;
+		leftCam->deInitCam();
+		delete leftPixels;
+		delete leftCam;
 	}
-	if (secondCam)
+	if (rightCam)
 	{
-		secondCam->deInitCam();
-		delete secondCam;
+		rightCam->deInitCam();
+		delete rightPixels;
+		delete rightCam;
 	}
 
 }
@@ -100,10 +106,10 @@ void ofApp::leftFrameHandler()
 
 void ofApp::leftFrameDraw()
 {
-	leftFrame.draw(100, 100, cam_width, cam_height); // left frame at (0,0) right frame at (640,0)
+	//leftFrame.draw(100, 100, cam_width, cam_height); // left frame at (0,0) right frame at (640,0)
 	//leftDrawFrame.draw(0, 0, 640, 480); 
 	leftDrawFrame.loadData(leftEyeFrame);
-	leftDrawFrame.draw(0, 0, 640, 480);
+	leftDrawFrame.draw(0, 0, leftCam->cam_width, leftCam->cam_height);
 
 	//convertColor(leftDrawFrame, gray, CV_RGB2GRAY);
 	//Canny(gray, edge, mouseX, mouseY, 3);
@@ -118,45 +124,70 @@ void ofApp::leftFrameDraw()
 	// maybe shader for getting greyscale too? so 0) color 1) greyscale by averageing color 2) opencv 
 }
 
+void ofApp::rightFrameDraw()
+{
+	rightDrawFrame.loadData(rightEyeFrame);
+	rightDrawFrame.draw(leftCam->cam_width, 0, rightCam->cam_width, rightCam->cam_height);
+}
+
 //--------------------------------------------------------------
 void ofApp::update(){
-	//cam1.update();
+	// check for additional cameras? check for removed camera?
 	//unsigned char* leftPixels = NULL;
 	//ps3eye_grab_frame(firstCam, leftPixels);
 	//ps3eye_grab_frame(firstCam->camInstance, leftPixels);
 	
-
-	leftEyeFrame.setFromPixels(firstCam->grabRawFrame(), 640, 480, 3);
-
-	//firstCam->ps32eyeref->getLastFramePointer();
-	// iterate over unsigned char* and add to ofPixels?
-	/*for (int i = 0; i < (cam_width*cam_height * 3); i++)
+	// if we're drawing the cameras directly:
+	//leftEyeFrame.setFromPixels(leftCam->grabRawFrame(), leftCam->cam_width, leftCam->cam_height, 3);
+	//rightEyeFrame.setFromPixels(rightCam->grabRawFrame(), rightCam->cam_width, rightCam->cam_height, 3);
+	// IF windowWidth > leftCamWidth + rightCamWidth THEN draw each at size
+	// ELSE: draw each at windowWidth/2, with the proper aspect ratio
+	if (ofGetWindowWidth() >= (leftCam->cam_width + rightCam->cam_width))
 	{
-		leftEyeFrame[i] = leftPixels[i];
-	}*/
+		if (ofGetWindowWidth() > (leftCam->cam_width * 2))
+		{
+			ofSetWindowShape(leftCam->cam_width * 2, ofGetWindowHeight());
+		}
+		leftEyeFrame.setFromPixels(leftCam->grabRawFrame(), leftCam->cam_width, leftCam->cam_height, 3);
+		rightEyeFrame.setFromPixels(rightCam->grabRawFrame(), rightCam->cam_width, rightCam->cam_height, 3);
+	}
+	else
+	{
+		int ratio = (ofGetWindowWidth() / 2) / leftCam->cam_width;
+		leftEyeFrame.setFromPixels(leftCam->grabRawFrame(), leftCam->cam_width * ratio, leftCam->cam_height * ratio, 3);
+		rightEyeFrame.setFromPixels(rightCam->grabRawFrame(), rightCam->cam_width * ratio, rightCam->cam_height * ratio, 3);
+	}
 
+	// if we're using openCV and stuff, render a composite first, then send to leftEyeFrame etc.
+	// ...or render to a FBO and just do that? That would fit nicely in a composite-maker function
 
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
 	//cam1.draw(0, 0);
-	
-	leftFrameDraw();
-	
+	if (leftCameraDraw)
+	{
+		leftFrameDraw();
+	}
+	if (rightCameraDraw)
+	{
+		rightFrameDraw();
+	}
+
 
 	gui.begin();
 
-	if (camStatus)
+	if (camStatusWidget)
 	{
-		ps3EyeStatusDraw();
+		drawCameraStatus();
 	}
 
 	// main settings widget
 	
-	if (settingsWidget) // replace with checkbox bool for testing
+	if (cameraSettingsWidget) // replace with checkbox bool for testing
 	{
-		drawSettingsWidget();
+		drawCameraSettingsWidget();
 		// overall settings widget, includes sub-widgets
 		// for each Eye: draw settings widget
 	}
@@ -164,33 +195,61 @@ void ofApp::draw(){
 
 	// let display handlers manage displaying images -- default to displaying both image sources, left is first if only one present --
 	// but for now just display one image directly
-	//prepareRenderField();
-	
 }
 
 /*
-void ofApp::prepareRenderField()
-{
-
-}
-*/
-
-
-void ofApp::drawSettingsWidget()
+ * For settings we want: 
+ *	- Radio buttons for left, right, or both (cameras)
+		- how handle if only one camera attached?
+ *	- button to swap left/right cams
+ *
+ */
+void ofApp::drawCameraSettingsWidget()
 {
 	{
-	ImGui::Begin("Settings");
-	ImGui::Text("Float value: %.2f", testFloat);
-	ImGui::SliderFloat(" ", &testFloat, 0.0f, 100.0f);
+	ImGui::Begin("Camera Settings", false, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse);
+	//ImGui::Text("Float value: %.2f", testFloat);
+	// disable right camera draw if only one camera attached? include selection and swap
+	// button in IF (more than 1 camera):
+	ImGui::Checkbox("Left Camera Draw", &leftCameraDraw);
+	ImGui::Checkbox("Right Camera Draw", &rightCameraDraw);
+	// if more than one camera: 
+
+	if (ImGui::Button("Swap Left and Right Cameras"))
+	{
+		swap(leftCam, rightCam);
+		//printf("SWAPP'D");
+	}
 	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	ImGui::End();
 	}
 }
 
-void ofApp::ps3EyeStatusDraw()
+/*
+ * For Camera Status we want:
+ *	- number of cameras attached
+ *	- button to de-initialize a camera (in order to remove it)?
+ *	- stats of each camera; resolution, refresh rate
+ */
+void ofApp::drawCameraStatus()
 {
-	ImGui::Begin("PS3 Eye Status");
+	ImGui::Begin("PS3 Eye Camera Status", false, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Text("Number of cameras attached: %i", numberOfCams);
+	// for (each camera):
+	//     resolution, refresh rate, left/right
+	if (leftCam)
+	{
+		ImGui::Text("\nLeft Camera: ");
+		ImGui::Text("Resolution: %i by %i", leftCam->cam_width, leftCam->cam_height);
+		ImGui::Text("Refresh rate: %iHz", leftCam->cam_refresh);
+	}
+	if (rightCam)
+	{
+		ImGui::Text("\nRight Camera: ");
+		ImGui::Text("Resolution: %i by %i", rightCam->cam_width, rightCam->cam_height);
+		ImGui::Text("Refresh rate: %iHz", rightCam->cam_refresh);
+	}
+
 	ImGui::End();
 }
 
