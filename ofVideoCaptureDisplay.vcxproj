@@ -183,6 +183,7 @@
 		<ClCompile Include="src\main.cpp" />
 		<ClCompile Include="src\ofApp.cpp" />
 		<ClCompile Include="src\scannerEye.cpp" />
+		<ClCompile Include="src\frameCompositor.cpp" />
 		<ClCompile Include="src\ps3eye.cpp" />
 		<ClCompile Include="src\ps3eye_capi.cpp" />
 		<ClCompile Include="..\..\..\addons\ofxKinect\src\ofxKinect.cpp" />
@@ -230,6 +231,7 @@
 	<ItemGroup>
 		<ClInclude Include="src\ofApp.h" />
 		<ClInclude Include="src\scannerEye.h" />
+		<ClInclude Include="src\frameCompositor.h" />
 		<ClInclude Include="src\ps3eye_capi.h" />
 		<ClInclude Include="src\libusb.h" />
 		<ClInclude Include="src\ps3eye.h" />

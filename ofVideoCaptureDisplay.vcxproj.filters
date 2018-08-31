@@ -7,13 +7,16 @@
 		<ClCompile Include="src\main.cpp">
 			<Filter>src</Filter>
 		</ClCompile>
+		<ClCompile Include="src\ofApp.cpp">
+			<Filter>src</Filter>
+		</ClCompile>
 		<ClCompile Include="src\main.cpp">
 			<Filter>src</Filter>
 		</ClCompile>
 		<ClCompile Include="src\scannerEye.cpp">
 			<Filter>src</Filter>
 		</ClCompile>
-		<ClCompile Include="src\ofApp.cpp">
+		<ClCompile Include="src\frameCompositor.cpp">
 			<Filter>src</Filter>
 		</ClCompile>
 		<ClCompile Include="src\ps3eye.cpp">
@@ -389,10 +392,13 @@
 		<ClInclude Include="src\ofApp.h">
 			<Filter>src</Filter>
 		</ClInclude>
+		<ClInclude Include="src\scannerEye.h">
+			<Filter>src</Filter>
+		</ClInclude>
 		<ClInclude Include="src\ofApp.h">
 			<Filter>src</Filter>
 		</ClInclude>
-		<ClInclude Include="src\scannerEye.h">
+		<ClInclude Include="src\frameCompositor.h">
 			<Filter>src</Filter>
 		</ClInclude>
 		<ClInclude Include="src\ps3eye_capi.h">

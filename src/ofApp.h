@@ -19,6 +19,7 @@ class ofApp : public ofBaseApp{
 		void leftFrameDraw();
 		void rightFrameDraw();
 		void frameUpdater();
+		void openCvStuff();
 
 
 		void keyPressed(int key);
@@ -35,6 +36,11 @@ class ofApp : public ofBaseApp{
 		void exit();
 
 		// opencv stuff
+
+		ofImage grey, edge, sobel;
+		float thresh1 = 90;  
+		float thresh2 = 70;
+
 		/*
 		cv::Mat source, source_grey;
 		cv::Mat dest, detected_edges;

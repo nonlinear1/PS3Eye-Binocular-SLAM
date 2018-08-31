@@ -6775,6 +6775,58 @@
 				<key>sourceTree</key>
 				<string>SOURCE_ROOT</string>
 			</dict>
+			<key>D786A4B9E9E7DCEBB755C3EC</key>
+			<dict>
+				<key>fileRef</key>
+				<string>3D9821EFD4F9376AA2A45ED7</string>
+				<key>isa</key>
+				<string>PBXBuildFile</string>
+			</dict>
+			<key>3D9821EFD4F9376AA2A45ED7</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.cpp.cpp</string>
+				<key>fileEncoding</key>
+				<string>4</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>src\frameCompositor.cpp</string>
+				<key>path</key>
+				<string>src\frameCompositor.cpp</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
+			<key>26D54CE1193516DCDA7E6BAF</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.c.h</string>
+				<key>fileEncoding</key>
+				<string>4</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>src\frameCompositor.h</string>
+				<key>path</key>
+				<string>src\frameCompositor.h</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
+			<key>C5318E5F59AB3E5B76827F50</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.c.h</string>
+				<key>fileEncoding</key>
+				<string>4</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>src\ofApp.h</string>
+				<key>path</key>
+				<string>src\ofApp.h</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
 			<key>F5BDDC2C76EC919DC3D008DE</key>
 			<dict>
 				<key>explicitFileType</key>
@@ -6787,28 +6839,6 @@
 				<string>src\scannerEye.h</string>
 				<key>path</key>
 				<string>src\scannerEye.h</string>
-				<key>sourceTree</key>
-				<string>SOURCE_ROOT</string>
-			</dict>
-			<key>A69E3BC437534E0A424AEA6A</key>
-			<dict>
-				<key>fileRef</key>
-				<string>F4EC735D3A6B6E781BEDB7D1</string>
-				<key>isa</key>
-				<string>PBXBuildFile</string>
-			</dict>
-			<key>F4EC735D3A6B6E781BEDB7D1</key>
-			<dict>
-				<key>explicitFileType</key>
-				<string>sourcecode.cpp.cpp</string>
-				<key>fileEncoding</key>
-				<string>4</string>
-				<key>isa</key>
-				<string>PBXFileReference</string>
-				<key>name</key>
-				<string>src\ofApp.cpp</string>
-				<key>path</key>
-				<string>src\ofApp.cpp</string>
 				<key>sourceTree</key>
 				<string>SOURCE_ROOT</string>
 			</dict>
@@ -6834,21 +6864,6 @@
 				<key>sourceTree</key>
 				<string>SOURCE_ROOT</string>
 			</dict>
-			<key>C5318E5F59AB3E5B76827F50</key>
-			<dict>
-				<key>explicitFileType</key>
-				<string>sourcecode.c.h</string>
-				<key>fileEncoding</key>
-				<string>4</string>
-				<key>isa</key>
-				<string>PBXFileReference</string>
-				<key>name</key>
-				<string>src\ofApp.h</string>
-				<key>path</key>
-				<string>src\ofApp.h</string>
-				<key>sourceTree</key>
-				<string>SOURCE_ROOT</string>
-			</dict>
 			<key>B2AD926770259F4C697118FD</key>
 			<dict>
 				<key>fileRef</key>
@@ -6868,6 +6883,28 @@
 				<string>src\main.cpp</string>
 				<key>path</key>
 				<string>src\main.cpp</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
+			<key>A69E3BC437534E0A424AEA6A</key>
+			<dict>
+				<key>fileRef</key>
+				<string>F4EC735D3A6B6E781BEDB7D1</string>
+				<key>isa</key>
+				<string>PBXBuildFile</string>
+			</dict>
+			<key>F4EC735D3A6B6E781BEDB7D1</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.cpp.cpp</string>
+				<key>fileEncoding</key>
+				<string>4</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>src\ofApp.cpp</string>
+				<key>path</key>
+				<string>src\ofApp.cpp</string>
 				<key>sourceTree</key>
 				<string>SOURCE_ROOT</string>
 			</dict>
@@ -7651,9 +7688,10 @@ fi
 				<array>
 					<string>E4B69E200A3A1BDC003C02F2</string>
 					<string>E4B69E210A3A1BDC003C02F2</string>
+					<string>A69E3BC437534E0A424AEA6A</string>
 					<string>B2AD926770259F4C697118FD</string>
 					<string>E222FAD65D4C6DE10A90DAE1</string>
-					<string>A69E3BC437534E0A424AEA6A</string>
+					<string>D786A4B9E9E7DCEBB755C3EC</string>
 					<string>529CDBDA3514878EEEEE617C</string>
 					<string>7A175B01E986351AA388D140</string>
 					<string>A220F878FF9A8DC4E6CA599B</string>
@@ -8010,11 +8048,13 @@ fi
 					<string>E4B69E1D0A3A1BDC003C02F2</string>
 					<string>E4B69E1E0A3A1BDC003C02F2</string>
 					<string>E4B69E1F0A3A1BDC003C02F2</string>
-					<string>0BC8C4FE0158A18092F89F8E</string>
-					<string>C5318E5F59AB3E5B76827F50</string>
-					<string>7DBA7439E72C94AA6E284D72</string>
 					<string>F4EC735D3A6B6E781BEDB7D1</string>
+					<string>0BC8C4FE0158A18092F89F8E</string>
+					<string>7DBA7439E72C94AA6E284D72</string>
 					<string>F5BDDC2C76EC919DC3D008DE</string>
+					<string>C5318E5F59AB3E5B76827F50</string>
+					<string>26D54CE1193516DCDA7E6BAF</string>
+					<string>3D9821EFD4F9376AA2A45ED7</string>
 					<string>CD5D5AAEC9797017965EEBFF</string>
 					<string>D03B69B224F31648A9F43A10</string>
 					<string>2855622D57237B4E5F41A6D9</string>

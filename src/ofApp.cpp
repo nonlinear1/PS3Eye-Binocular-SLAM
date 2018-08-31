@@ -1,11 +1,11 @@
 #include "ofApp.h"
 
+using namespace ps3eye;
+using namespace ofxCv;
+using namespace cv;
+
 //--------------------------------------------------------------
 void ofApp::setup(){
-	
-	using namespace ps3eye;
-	using namespace ofxCv;
-	using namespace cv;
 
 	gui.setup();
 	ofSetWindowTitle("prototype build--bmp18");
@@ -155,17 +155,34 @@ void ofApp::update(){
 void ofApp::frameUpdater()
 {
 	// if we're drawing the cameras directly:
-	leftEyeFrame.setFromPixels(leftCam->grabRawFrame(), leftCam->cam_width, leftCam->cam_height, 3);
-	rightEyeFrame.setFromPixels(rightCam->grabRawFrame(), rightCam->cam_width, rightCam->cam_height, 3);
-
-	leftMat = ofxCv::toCv(leftEyeFrame);
-	rightMat = ofxCv::toCv(rightEyeFrame);
+	if (leftCam)
+	{
+		leftEyeFrame.setFromPixels(leftCam->grabRawFrame(), leftCam->cam_width, leftCam->cam_height, 3);
+		leftMat = toCv(leftEyeFrame);
+	}
+	
+	if (rightCam)
+	{
+		rightEyeFrame.setFromPixels(rightCam->grabRawFrame(), rightCam->cam_width, rightCam->cam_height, 3);
+		rightMat = toCv(rightEyeFrame);
+	}
 
 	// if we're using openCV and stuff, render a composite first, then send to leftEyeFrame etc.
 	// ...or render to a FBO and just do that? That would fit nicely in a composite-maker function
+	openCvStuff();
 }
 
 // toMat() function
+
+void ofApp::openCvStuff()
+{
+	convertColor(leftEyeFrame, grey, CV_RGB2GRAY);
+	Canny(grey, edge, thresh1, thresh2, 3);
+	//Sobel(grey, sobel);
+	grey.update();
+	//sobel.update();
+	edge.update();
+}
 
 //--------------------------------------------------------------
 void ofApp::draw(){
@@ -179,9 +196,17 @@ void ofApp::draw(){
 	{
 		rightFrameDraw();
 	}
-
+	grey.draw(0, 480);
+	edge.draw(640, 480);
 
 	gui.begin();
+
+	{
+		ImGui::Begin("Edge Detection Settings");
+		ImGui::SliderFloat("Threshold 1", &thresh1, 0.0f, 250.0f);
+		ImGui::SliderFloat("Threshold 2", &thresh2, 0.0f, 500.0f);
+		ImGui::End();
+	}
 
 	if (camStatusWidget)
 	{
