@@ -4,7 +4,7 @@
 
 //========================================================================
 int main( ){
-	ofSetupOpenGL(1280,800,OF_WINDOW);	// allows for 2 camera feeds in the top quadrants, settings in the 
+	ofSetupOpenGL(960,720,OF_WINDOW);	// allows for 2 camera feeds in the top quadrants, settings in the 
 										// third, and a general purpose quadrant in the last
 
 	// this kicks off the running of my app

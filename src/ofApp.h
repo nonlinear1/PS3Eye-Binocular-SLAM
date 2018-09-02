@@ -18,6 +18,7 @@ class ofApp : public ofBaseApp{
 		void drawCameraSettingsWidget();
 		void leftFrameDraw();
 		void rightFrameDraw();
+		void cvFrameDraw();
 		void frameUpdater();
 		void openCvStuff();
 
@@ -40,17 +41,6 @@ class ofApp : public ofBaseApp{
 		ofImage grey, edge, sobel;
 		float thresh1 = 90;  
 		float thresh2 = 70;
-
-		/*
-		cv::Mat source, source_grey;
-		cv::Mat dest, detected_edges;
-		
-		int edgeThresh = 1;
-		int lowThreshold;
-		int const max_lowThreshold = 100;
-		int ratio = 3;
-		int kernel_size = 3;
-		*/
 		//end opencv
 
 		// ps3eye stuff
@@ -71,10 +61,12 @@ class ofApp : public ofBaseApp{
 		
 		ofxImGui::Gui gui;
 		ImVec4 backgroundColor;
+		bool* closeButtonOnWidgets = false;
 		
 		
 		bool leftCameraDraw = false;
 		bool rightCameraDraw = false;
+		bool cvDraw = false;
 		
 		// image + frame vars
 
@@ -83,9 +75,11 @@ class ofApp : public ofBaseApp{
 
 		ofPixels leftEyeFrame;
 		ofTexture leftDrawFrame;
+		ofPixels leftEyeFrame_scaled;
 
 		ofPixels rightEyeFrame;
 		ofTexture rightDrawFrame;
+		ofPixels rightEyeFrame_scaled;
 
 		cv::Mat leftMat;
 		cv::Mat rightMat;

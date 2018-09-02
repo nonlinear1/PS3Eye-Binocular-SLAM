@@ -39,7 +39,7 @@ void ofApp::setup(){
 }
 
 /**
- * For now this directly initializes one camera. Soon: listen for all ps3eye cams, and tell theem to init themselves
+ * Looks for one or two PS3 Eye Cams, asks them to initialize themselves through the scannerEye class
  **/
 void ofApp::initCams()
 {
@@ -59,6 +59,7 @@ void ofApp::initCams()
 		// allocate array here, delete in deinit
 		leftPixels = new unsigned char[leftCam->cam_width * leftCam->cam_height * 3]; // raw image size is (width * height * color channels per pixel) bytes
 		leftCameraDraw = true;
+		leftEyeFrame_scaled.allocate(320, 240, 3);
 
 		if (numberOfCams > 1)
 		{
@@ -66,6 +67,7 @@ void ofApp::initCams()
 			rightCam->initCam(1, 640, 480, 60);
 			rightPixels = new unsigned char[rightCam->cam_width * rightCam->cam_height * 3];
 			rightCameraDraw = true;
+			rightEyeFrame_scaled.allocate(320, 240, 3);
 		}
 	}
 
@@ -99,17 +101,14 @@ void ofApp::deInitCams()
 
 void ofApp::leftFrameDraw()
 { 
-	leftDrawFrame.loadData(leftEyeFrame);
-	leftDrawFrame.draw(0, 0, leftCam->cam_width, leftCam->cam_height);
-
-	//convertColor(leftDrawFrame, gray, CV_RGB2GRAY);
-	//Canny(gray, edge, mouseX, mouseY, 3);
-	//Sobel(gray, sobel);
-	//gray.update();
-	//sobel.update();
-	//edge.update();
-
-
+	leftEyeFrame.resizeTo(leftEyeFrame_scaled);
+	//leftEyeFrame.resize(320, 240, OF_INTERPOLATE_BILINEAR);
+	// IF (notScaled): load leftDrawFrame from leftEyeFrame
+	//leftDrawFrame.loadData(leftEyeFrame);
+	//leftDrawFrame.draw(0, 0, leftCam->cam_width, leftCam->cam_height);
+	// ELSE: load leftDrawFrame from leftEyeFrame_scaled
+	leftDrawFrame.loadData(leftEyeFrame_scaled);
+	leftDrawFrame.draw(320, 480, 320, 240);
 
 	// make a shader? three layers -- 0) color image 1) opencv feature overlay
 	// maybe shader for getting greyscale too? so 0) color 1) greyscale by averageing color 2) opencv 
@@ -136,9 +135,19 @@ void ofApp::rightFrameDraw()
 		rightDrawFrame.draw(leftCam->cam_width*ratio, 0, rightCam->cam_width*ratio, rightCam->cam_height*ratio);
 	}
 	*/
+	//rightEyeFrame.resize(320, 240, OF_INTERPOLATE_BILINEAR);
+	//rightDrawFrame.loadData(rightEyeFrame);
+	rightEyeFrame.resizeTo(rightEyeFrame_scaled);
+	rightDrawFrame.loadData(rightEyeFrame_scaled);
+	rightDrawFrame.draw(640, 480, 320, 240);
+}
 
-	rightDrawFrame.loadData(rightEyeFrame);
-	rightDrawFrame.draw(leftCam->cam_width, 0, rightCam->cam_width, rightCam->cam_height);
+void ofApp::cvFrameDraw()
+{
+	edge.draw(320, 0);
+	//ofImage mask;
+	//mask.load(edge); // use a shader for this
+	//grey.draw(0, 480);
 }
 
 //--------------------------------------------------------------
@@ -182,6 +191,7 @@ void ofApp::openCvStuff()
 	grey.update();
 	//sobel.update();
 	edge.update();
+	// StereoBM vs StereoSGBM vs adapt one from the papers?
 }
 
 //--------------------------------------------------------------
@@ -196,15 +206,20 @@ void ofApp::draw(){
 	{
 		rightFrameDraw();
 	}
-	grey.draw(0, 480);
-	edge.draw(640, 480);
+
+	if (cvDraw)
+	{
+		cvFrameDraw();
+	}
 
 	gui.begin();
 
 	{
-		ImGui::Begin("Edge Detection Settings");
-		ImGui::SliderFloat("Threshold 1", &thresh1, 0.0f, 250.0f);
-		ImGui::SliderFloat("Threshold 2", &thresh2, 0.0f, 500.0f);
+		ImGui::Begin("Edge Detection Settings", closeButtonOnWidgets, ImGuiWindowFlags_AlwaysAutoResize);
+		ImGui::Text("Threshold 1");
+		ImGui::SliderFloat("", &thresh1, 0.0f, 250.0f);
+		ImGui::Text("Threshold 2");
+		ImGui::SliderFloat("", &thresh2, 0.0f, 500.0f);
 		ImGui::End();
 	}
 
@@ -243,6 +258,7 @@ void ofApp::drawCameraSettingsWidget()
 	// button in IF (more than 1 camera):
 	ImGui::Checkbox("Left Camera Draw", &leftCameraDraw);
 	ImGui::Checkbox("Right Camera Draw", &rightCameraDraw);
+	ImGui::Checkbox("Processd Image Draw", &cvDraw);
 	// if more than one camera: 
 
 	if (ImGui::Button("Swap Left and Right Cameras"))
@@ -250,7 +266,7 @@ void ofApp::drawCameraSettingsWidget()
 		swap(leftCam, rightCam);
 		//printf("SWAPP'D");
 	}
-	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+	ImGui::Text("Application average %.3f \nms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	ImGui::End();
 	}
 }
@@ -325,8 +341,9 @@ void ofApp::mouseExited(int x, int y){
 }
 
 //--------------------------------------------------------------
-void ofApp::windowResized(int w, int h){
-
+void ofApp::windowResized(int w, int h)
+{
+	ofSetWindowShape(960, 720);
 }
 
 //--------------------------------------------------------------
