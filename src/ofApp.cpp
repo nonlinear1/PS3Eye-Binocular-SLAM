@@ -8,11 +8,17 @@ using namespace cv;
 void ofApp::setup(){
 
 	//try: loadSettings();
-	loadSettings();
-	printf(swapCameras ? "True" : "False");
+	
+	//printf(swapCameras ? "True" : "False"); 
 	gui.setup();
+	backgroundColor = ofColor(118, 131, 142);
+	ofSetBackgroundColor(backgroundColor);
 	ofSetWindowTitle("prototype build--bmp18");
 	ofSetDataPathRoot("../data/");
+	loadSettings();
+
+	stereo = cv::StereoSGBM::create(minDisp, numDisp, blockSize, P1, P2, disp12MaxDiff, preFilterCap, uniquenessRatio, speckleWindowSize, speckleRange, mode);
+
 	//testFloat = 23.0f;
 
 	// single canvas for whole screen, can choose -- left + right display, left only, or right only
@@ -193,6 +199,7 @@ void ofApp::frameUpdater()
 
 void ofApp::openCvStuff()
 {
+	
 	convertColor(leftEyeFrame, grey, CV_RGB2GRAY);
 	Canny(grey, edge, thresh1, thresh2, 3);
 	//Sobel(grey, sobel);
@@ -200,6 +207,39 @@ void ofApp::openCvStuff()
 	//sobel.update();
 	edge.update();
 	// StereoBM vs StereoSGBM vs adapt one from the papers?
+	
+	//printf("'stereo' has min disparity of: %i\n", stereo->getMinDisparity());
+
+	/*
+	convertColor(leftEyeFrame, lGrey, CV_RGB2GRAY);
+	convertColor(rightEyeFrame, rGrey, CV_RGB2GRAY);
+	leftGrey = toCv(lGrey);
+	rightGrey = toCv(rGrey);
+	//stereo->compute(leftGrey, rightGrey, dispGrey);
+	stereo->compute(leftGrey, rightGrey, dispGrey);
+	ofPixels dispPix;
+	toOf(dispGrey, dispPix);
+	edge.setFromPixels(dispPix);
+	edge.update();*/
+}
+
+/*
+ * Button in Settings widget to calibrate individual cameras. For ease we'll use one set of 
+ * calibration data for both cameras -- they should be nearly identical. We'll use the 
+ * single-camera calibration data to help calibrate our stereo camera setup.
+ */
+void ofApp::calibrateMono()
+{
+
+}
+
+/*
+ * Have button in Settings widget to calibrate, when pressed it launches calibrateStereo()
+ * calibrateStereo() 
+ */
+void ofApp::calibrateStereo()
+{
+
 }
 
 //--------------------------------------------------------------
@@ -314,6 +354,7 @@ void ofApp::drawCameraStatus()
 void ofApp::saveSettings()
 {
 	//ourSettings.setValue("settings:cvDraw", cvDraw);
+	ofxXmlSettings settings;
 	settings.setValue("settings:swapCameras", swapCameras);
 	//printf(swapCameras ? "true" : "false");
 	settings.saveFile("settings.xml");
@@ -335,10 +376,20 @@ void ofApp::saveSettings()
  */
 void ofApp::loadSettings()
 {
-	ofDisableDataPath();
-	settings.loadFile("/data/settings.xml");
+	//ofDisableDataPath();
+	//settings.loadFile("/data/settings.xml");
+	ofxXmlSettings settings;
+	if (settings.loadFile("settings.xml"))
+	{
+		printf("Successfully loaded settings.xml.");
+		//printf("Setting is: %i", settings.getValue("settings:swapCameras", true));
+	}
+	else
+	{
+		printf("Couldn't load settings.xml");
+	}
+		//ofEnableDataPath();
 	swapCameras = settings.getValue("settings:swapCameras", false);
-	ofEnableDataPath();
 }
 
 
@@ -400,6 +451,7 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
 
 void ofApp::exit()
 {
+	//delete stereo;
 	saveSettings();
 	deInitCams();
 	//testFloat->store(); // test out the persistent storage of values/settings

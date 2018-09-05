@@ -24,6 +24,8 @@ class ofApp : public ofBaseApp{
 		void openCvStuff();
 		void saveSettings();
 		void loadSettings();
+		void calibrateMono();
+		void calibrateStereo();
 
 
 		void keyPressed(int key);
@@ -40,6 +42,27 @@ class ofApp : public ofBaseApp{
 		void exit();
 
 		// opencv stuff
+
+		cv::Ptr<cv::StereoSGBM> stereo;
+		ofImage lGrey;
+		ofImage rGrey;
+		cv::Mat leftGrey;
+		cv::Mat rightGrey;
+		cv::Mat dispGrey;
+		int numDisp = 144;//48;//16;//144; // 16?
+		int preFilterCap = 63;
+		int minDisp = -39;
+		int uniquenessRatio = 10;
+		int speckleWindowSize = 10;//100;
+		int speckleRange = 32;
+		int disp12MaxDiff = 1;
+		bool fullDP = false;
+		int P1 = 480;
+		int P2 = 640;
+		int blockSize = 13;
+		int mode = 0;
+
+		//****
 
 		ofImage grey, edge, sobel;
 		float thresh1 = 90;  
@@ -63,14 +86,14 @@ class ofApp : public ofBaseApp{
 		// back to our stuff
 		
 		ofxImGui::Gui gui;
-		ofxXmlSettings settings;
+		//ofxXmlSettings settings;
 		ImVec4 backgroundColor;
 		bool closeButtonOnWidgets = false;
 		
 		
 		bool leftCameraDraw = false;
 		bool rightCameraDraw = false;
-		bool cvDraw = false;
+		bool cvDraw = true;// false;
 		
 		// image + frame vars
 
