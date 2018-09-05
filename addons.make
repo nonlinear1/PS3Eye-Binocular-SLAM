@@ -1,4 +1,5 @@
 ofxKinect
 ofxOpenCv
+ofxXmlSettings
 ofxImGui
 ofxCv

@@ -8,6 +8,7 @@
 #include "scannerEye.h"
 #include "ofxOpenCv.h"
 #include "ofxCv.h"
+#include "ofxXmlSettings.h"
 
 class ofApp : public ofBaseApp{
 
@@ -21,6 +22,8 @@ class ofApp : public ofBaseApp{
 		void cvFrameDraw();
 		void frameUpdater();
 		void openCvStuff();
+		void saveSettings();
+		void loadSettings();
 
 
 		void keyPressed(int key);
@@ -55,13 +58,14 @@ class ofApp : public ofBaseApp{
 		scannerEye* leftCam;
 		scannerEye* rightCam;
 		int numberOfCams; // number of PS3 Eye Cameras attached
+		bool swapCameras; // if true on exit, will tell app to swap cameras automatically on next launch
 
-		
 		// back to our stuff
 		
 		ofxImGui::Gui gui;
+		ofxXmlSettings settings;
 		ImVec4 backgroundColor;
-		bool* closeButtonOnWidgets = false;
+		bool closeButtonOnWidgets = false;
 		
 		
 		bool leftCameraDraw = false;

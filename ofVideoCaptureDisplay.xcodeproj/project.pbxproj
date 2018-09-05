@@ -1017,6 +1017,124 @@
 				<key>sourceTree</key>
 				<string>SOURCE_ROOT</string>
 			</dict>
+			<key>75403AE3AE98C6D6271969CD</key>
+			<dict>
+				<key>fileRef</key>
+				<string>564CC30509B9DD5DC2F1C505</string>
+				<key>isa</key>
+				<string>PBXBuildFile</string>
+			</dict>
+			<key>564CC30509B9DD5DC2F1C505</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.cpp.cpp</string>
+				<key>fileEncoding</key>
+				<string>4</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>libs\tinyxml.cpp</string>
+				<key>path</key>
+				<string>../../../addons\ofxXmlSettings/libs\tinyxml.cpp</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
+			<key>9D7A8EE0D7BC2B39ADA73720</key>
+			<dict>
+				<key>fileRef</key>
+				<string>CD51C5DD10CF6554383C2081</string>
+				<key>isa</key>
+				<string>PBXBuildFile</string>
+			</dict>
+			<key>CD51C5DD10CF6554383C2081</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.cpp.cpp</string>
+				<key>fileEncoding</key>
+				<string>4</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>libs\tinyxmlerror.cpp</string>
+				<key>path</key>
+				<string>../../../addons\ofxXmlSettings/libs\tinyxmlerror.cpp</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
+			<key>5B0FE48863D3871258BA492A</key>
+			<dict>
+				<key>fileRef</key>
+				<string>E2455E20511551F543FCEED6</string>
+				<key>isa</key>
+				<string>PBXBuildFile</string>
+			</dict>
+			<key>E2455E20511551F543FCEED6</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.cpp.cpp</string>
+				<key>fileEncoding</key>
+				<string>4</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>libs\tinyxmlparser.cpp</string>
+				<key>path</key>
+				<string>../../../addons\ofxXmlSettings/libs\tinyxmlparser.cpp</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
+			<key>B99595311ED18DF41C0845C9</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.c.h</string>
+				<key>fileEncoding</key>
+				<string>4</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>libs\tinyxml.h</string>
+				<key>path</key>
+				<string>../../../addons\ofxXmlSettings/libs\tinyxml.h</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
+			<key>53BE93118156FEB912A4C5D6</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.c.h</string>
+				<key>fileEncoding</key>
+				<string>4</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>src\ofxXmlSettings.h</string>
+				<key>path</key>
+				<string>../../../addons\ofxXmlSettings/src\ofxXmlSettings.h</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
+			<key>E348014C69ADB69687486A60</key>
+			<dict>
+				<key>fileRef</key>
+				<string>EDAD2CE7C38894BAC9D64C41</string>
+				<key>isa</key>
+				<string>PBXBuildFile</string>
+			</dict>
+			<key>EDAD2CE7C38894BAC9D64C41</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.cpp.cpp</string>
+				<key>fileEncoding</key>
+				<string>4</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>src\ofxXmlSettings.cpp</string>
+				<key>path</key>
+				<string>../../../addons\ofxXmlSettings/src\ofxXmlSettings.cpp</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
 			<key>8C28264D8C723AFF291A2466</key>
 			<dict>
 				<key>explicitFileType</key>
@@ -6812,18 +6930,47 @@
 				<key>sourceTree</key>
 				<string>SOURCE_ROOT</string>
 			</dict>
-			<key>C5318E5F59AB3E5B76827F50</key>
+			<key>A69E3BC437534E0A424AEA6A</key>
+			<dict>
+				<key>fileRef</key>
+				<string>F4EC735D3A6B6E781BEDB7D1</string>
+				<key>isa</key>
+				<string>PBXBuildFile</string>
+			</dict>
+			<key>F4EC735D3A6B6E781BEDB7D1</key>
 			<dict>
 				<key>explicitFileType</key>
-				<string>sourcecode.c.h</string>
+				<string>sourcecode.cpp.cpp</string>
 				<key>fileEncoding</key>
 				<string>4</string>
 				<key>isa</key>
 				<string>PBXFileReference</string>
 				<key>name</key>
-				<string>src\ofApp.h</string>
+				<string>src\ofApp.cpp</string>
 				<key>path</key>
-				<string>src\ofApp.h</string>
+				<string>src\ofApp.cpp</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
+			<key>B2AD926770259F4C697118FD</key>
+			<dict>
+				<key>fileRef</key>
+				<string>0BC8C4FE0158A18092F89F8E</string>
+				<key>isa</key>
+				<string>PBXBuildFile</string>
+			</dict>
+			<key>0BC8C4FE0158A18092F89F8E</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.cpp.cpp</string>
+				<key>fileEncoding</key>
+				<string>4</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>src\main.cpp</string>
+				<key>path</key>
+				<string>src\main.cpp</string>
 				<key>sourceTree</key>
 				<string>SOURCE_ROOT</string>
 			</dict>
@@ -6864,47 +7011,18 @@
 				<key>sourceTree</key>
 				<string>SOURCE_ROOT</string>
 			</dict>
-			<key>B2AD926770259F4C697118FD</key>
-			<dict>
-				<key>fileRef</key>
-				<string>0BC8C4FE0158A18092F89F8E</string>
-				<key>isa</key>
-				<string>PBXBuildFile</string>
-			</dict>
-			<key>0BC8C4FE0158A18092F89F8E</key>
+			<key>C5318E5F59AB3E5B76827F50</key>
 			<dict>
 				<key>explicitFileType</key>
-				<string>sourcecode.cpp.cpp</string>
+				<string>sourcecode.c.h</string>
 				<key>fileEncoding</key>
 				<string>4</string>
 				<key>isa</key>
 				<string>PBXFileReference</string>
 				<key>name</key>
-				<string>src\main.cpp</string>
+				<string>src\ofApp.h</string>
 				<key>path</key>
-				<string>src\main.cpp</string>
-				<key>sourceTree</key>
-				<string>SOURCE_ROOT</string>
-			</dict>
-			<key>A69E3BC437534E0A424AEA6A</key>
-			<dict>
-				<key>fileRef</key>
-				<string>F4EC735D3A6B6E781BEDB7D1</string>
-				<key>isa</key>
-				<string>PBXBuildFile</string>
-			</dict>
-			<key>F4EC735D3A6B6E781BEDB7D1</key>
-			<dict>
-				<key>explicitFileType</key>
-				<string>sourcecode.cpp.cpp</string>
-				<key>fileEncoding</key>
-				<string>4</string>
-				<key>isa</key>
-				<string>PBXFileReference</string>
-				<key>name</key>
-				<string>src\ofApp.cpp</string>
-				<key>path</key>
-				<string>src\ofApp.cpp</string>
+				<string>src\ofApp.h</string>
 				<key>sourceTree</key>
 				<string>SOURCE_ROOT</string>
 			</dict>
@@ -7101,6 +7219,8 @@ fi
 						<string>../../../addons\ofxOpenCv/libs\opencv\lib</string>
 						<string>../../../addons\ofxOpenCv/libs\opencv\license</string>
 						<string>../../../addons\ofxOpenCv/src</string>
+						<string>../../../addons\ofxXmlSettings/libs</string>
+						<string>../../../addons\ofxXmlSettings/src</string>
 						<string>../../../addons\ofxImGui/libs</string>
 						<string>../../../addons\ofxImGui/libs\imgui</string>
 						<string>../../../addons\ofxImGui/libs\imgui\src</string>
@@ -7231,6 +7351,8 @@ fi
 						<string>../../../addons\ofxOpenCv/libs\opencv\lib</string>
 						<string>../../../addons\ofxOpenCv/libs\opencv\license</string>
 						<string>../../../addons\ofxOpenCv/src</string>
+						<string>../../../addons\ofxXmlSettings/libs</string>
+						<string>../../../addons\ofxXmlSettings/src</string>
 						<string>../../../addons\ofxImGui/libs</string>
 						<string>../../../addons\ofxImGui/libs\imgui</string>
 						<string>../../../addons\ofxImGui/libs\imgui\src</string>
@@ -7496,6 +7618,8 @@ fi
 						<string>../../../addons\ofxOpenCv/libs\opencv\lib</string>
 						<string>../../../addons\ofxOpenCv/libs\opencv\license</string>
 						<string>../../../addons\ofxOpenCv/src</string>
+						<string>../../../addons\ofxXmlSettings/libs</string>
+						<string>../../../addons\ofxXmlSettings/src</string>
 						<string>../../../addons\ofxImGui/libs</string>
 						<string>../../../addons\ofxImGui/libs\imgui</string>
 						<string>../../../addons\ofxImGui/libs\imgui\src</string>
@@ -7624,6 +7748,8 @@ fi
 						<string>../../../addons\ofxOpenCv/libs\opencv\lib</string>
 						<string>../../../addons\ofxOpenCv/libs\opencv\license</string>
 						<string>../../../addons\ofxOpenCv/src</string>
+						<string>../../../addons\ofxXmlSettings/libs</string>
+						<string>../../../addons\ofxXmlSettings/src</string>
 						<string>../../../addons\ofxImGui/libs</string>
 						<string>../../../addons\ofxImGui/libs\imgui</string>
 						<string>../../../addons\ofxImGui/libs\imgui\src</string>
@@ -7688,9 +7814,9 @@ fi
 				<array>
 					<string>E4B69E200A3A1BDC003C02F2</string>
 					<string>E4B69E210A3A1BDC003C02F2</string>
-					<string>A69E3BC437534E0A424AEA6A</string>
-					<string>B2AD926770259F4C697118FD</string>
 					<string>E222FAD65D4C6DE10A90DAE1</string>
+					<string>B2AD926770259F4C697118FD</string>
+					<string>A69E3BC437534E0A424AEA6A</string>
 					<string>D786A4B9E9E7DCEBB755C3EC</string>
 					<string>529CDBDA3514878EEEEE617C</string>
 					<string>7A175B01E986351AA388D140</string>
@@ -7711,6 +7837,10 @@ fi
 					<string>C9D5919E4F7F8287DCC81DE0</string>
 					<string>A2166EC4F407FC54AB0E40DB</string>
 					<string>8D9A74731D25E22FEAA855B6</string>
+					<string>E348014C69ADB69687486A60</string>
+					<string>5B0FE48863D3871258BA492A</string>
+					<string>9D7A8EE0D7BC2B39ADA73720</string>
+					<string>75403AE3AE98C6D6271969CD</string>
 					<string>37E300C942DA69649EFD1365</string>
 					<string>6BF7A44E947EF764B68230F3</string>
 					<string>32E235B544F38EC69A847D87</string>
@@ -7883,6 +8013,8 @@ fi
 						<string>../../../addons\ofxOpenCv/libs\opencv\lib</string>
 						<string>../../../addons\ofxOpenCv/libs\opencv\license</string>
 						<string>../../../addons\ofxOpenCv/src</string>
+						<string>../../../addons\ofxXmlSettings/libs</string>
+						<string>../../../addons\ofxXmlSettings/src</string>
 						<string>../../../addons\ofxImGui/libs</string>
 						<string>../../../addons\ofxImGui/libs\imgui</string>
 						<string>../../../addons\ofxImGui/libs\imgui\src</string>
@@ -7998,6 +8130,8 @@ fi
 						<string>../../../addons\ofxOpenCv/libs\opencv\lib</string>
 						<string>../../../addons\ofxOpenCv/libs\opencv\license</string>
 						<string>../../../addons\ofxOpenCv/src</string>
+						<string>../../../addons\ofxXmlSettings/libs</string>
+						<string>../../../addons\ofxXmlSettings/src</string>
 						<string>../../../addons\ofxImGui/libs</string>
 						<string>../../../addons\ofxImGui/libs\imgui</string>
 						<string>../../../addons\ofxImGui/libs\imgui\src</string>
@@ -8048,11 +8182,11 @@ fi
 					<string>E4B69E1D0A3A1BDC003C02F2</string>
 					<string>E4B69E1E0A3A1BDC003C02F2</string>
 					<string>E4B69E1F0A3A1BDC003C02F2</string>
-					<string>F4EC735D3A6B6E781BEDB7D1</string>
-					<string>0BC8C4FE0158A18092F89F8E</string>
+					<string>C5318E5F59AB3E5B76827F50</string>
 					<string>7DBA7439E72C94AA6E284D72</string>
 					<string>F5BDDC2C76EC919DC3D008DE</string>
-					<string>C5318E5F59AB3E5B76827F50</string>
+					<string>0BC8C4FE0158A18092F89F8E</string>
+					<string>F4EC735D3A6B6E781BEDB7D1</string>
 					<string>26D54CE1193516DCDA7E6BAF</string>
 					<string>3D9821EFD4F9376AA2A45ED7</string>
 					<string>CD5D5AAEC9797017965EEBFF</string>

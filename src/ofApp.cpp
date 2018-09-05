@@ -7,6 +7,9 @@ using namespace cv;
 //--------------------------------------------------------------
 void ofApp::setup(){
 
+	//try: loadSettings();
+	loadSettings();
+	printf(swapCameras ? "True" : "False");
 	gui.setup();
 	ofSetWindowTitle("prototype build--bmp18");
 	ofSetDataPathRoot("../data/");
@@ -68,6 +71,11 @@ void ofApp::initCams()
 			rightPixels = new unsigned char[rightCam->cam_width * rightCam->cam_height * 3];
 			rightCameraDraw = true;
 			rightEyeFrame_scaled.allocate(320, 240, 3);
+
+			if (swapCameras)
+			{
+				swap(leftCam, rightCam);
+			}
 		}
 	}
 
@@ -215,11 +223,11 @@ void ofApp::draw(){
 	gui.begin();
 
 	{
-		ImGui::Begin("Edge Detection Settings", closeButtonOnWidgets, ImGuiWindowFlags_AlwaysAutoResize);
+		ImGui::Begin("Edge Detection Settings", &closeButtonOnWidgets, ImGuiWindowFlags_AlwaysAutoResize);
 		ImGui::Text("Threshold 1");
-		ImGui::SliderFloat("", &thresh1, 0.0f, 250.0f);
+		ImGui::SliderFloat("##1", &thresh1, 0.0f, 250.0f); // the "##" appears allow a non-displayed widget label
 		ImGui::Text("Threshold 2");
-		ImGui::SliderFloat("", &thresh2, 0.0f, 500.0f);
+		ImGui::SliderFloat("##2", &thresh2, 0.0f, 500.0f);
 		ImGui::End();
 	}
 
@@ -252,7 +260,7 @@ void ofApp::draw(){
 void ofApp::drawCameraSettingsWidget()
 {
 	{
-	ImGui::Begin("Camera Settings", false, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse);
+	ImGui::Begin("Camera Settings", &closeButtonOnWidgets, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse);
 	//ImGui::Text("Float value: %.2f", testFloat);
 	// disable right camera draw if only one camera attached? include selection and swap
 	// button in IF (more than 1 camera):
@@ -263,8 +271,12 @@ void ofApp::drawCameraSettingsWidget()
 
 	if (ImGui::Button("Swap Left and Right Cameras"))
 	{
-		swap(leftCam, rightCam);
-		//printf("SWAPP'D");
+		if (numberOfCams > 1)
+		{
+			swap(leftCam, rightCam);
+			swapCameras = !swapCameras;
+			//printf("SWAPP'D");
+		}
 	}
 	ImGui::Text("Application average %.3f \nms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	ImGui::End();
@@ -279,7 +291,7 @@ void ofApp::drawCameraSettingsWidget()
  */
 void ofApp::drawCameraStatus()
 {
-	ImGui::Begin("PS3 Eye Camera Status", false, ImGuiWindowFlags_AlwaysAutoResize);
+	ImGui::Begin("PS3 Eye Camera Status", &closeButtonOnWidgets, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Text("Number of cameras attached: %i", numberOfCams);
 	// for (each camera):
 	//     resolution, refresh rate, left/right
@@ -297,6 +309,36 @@ void ofApp::drawCameraStatus()
 	}
 
 	ImGui::End();
+}
+
+void ofApp::saveSettings()
+{
+	//ourSettings.setValue("settings:cvDraw", cvDraw);
+	settings.setValue("settings:swapCameras", swapCameras);
+	//printf(swapCameras ? "true" : "false");
+	settings.saveFile("settings.xml");
+
+		/*
+		bool leftCameraDraw = false;
+		bool rightCameraDraw = false;
+		bool cvDraw = false;
+		float thresh1 = 90;  
+		float thresh2 = 70;
+		bool swapCameras;
+		*/
+}
+
+/*
+ * Perhaps it's because we call this so early in ofApp.cpp, but it doesn't seem to load the settings properly.
+ * However, it doesn't crash and I'd like a reminder to investigate more and fix if possible, so
+ * the load/saveSettings functionality will remain for now.
+ */
+void ofApp::loadSettings()
+{
+	ofDisableDataPath();
+	settings.loadFile("/data/settings.xml");
+	swapCameras = settings.getValue("settings:swapCameras", false);
+	ofEnableDataPath();
 }
 
 
@@ -358,6 +400,7 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
 
 void ofApp::exit()
 {
+	saveSettings();
 	deInitCams();
 	//testFloat->store(); // test out the persistent storage of values/settings
 }
