@@ -24,8 +24,8 @@ class ofApp : public ofBaseApp{
 		void openCvStuff();
 		void saveSettings();
 		void loadSettings();
-		void calibrateMono();
-		void calibrateStereo();
+		void callibrateMono();
+		void callibrateStereo();
 
 
 		void keyPressed(int key);
@@ -40,6 +40,15 @@ class ofApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
 		void exit();
+
+		// calibrate single camera variables
+		int boardWidth = 7; // width in squares
+		int boardHeight = 10; // height in squares
+		float squareSize = 22.5; // sidelength of squarse in mm
+		int numImages = 30; // how many frames to capture for calibration
+		
+		cv::Size boardSize; // derived from above values
+		int boardArea;  // derived from above values
 
 		// opencv stuff
 
@@ -64,7 +73,8 @@ class ofApp : public ofBaseApp{
 
 		//****
 
-		ofImage grey, edge, sobel;
+		ofImage grey, sobel;
+		ofImage cvImage;
 		float thresh1 = 90;  
 		float thresh2 = 70;
 		//end opencv
@@ -86,7 +96,7 @@ class ofApp : public ofBaseApp{
 		// back to our stuff
 		
 		ofxImGui::Gui gui;
-		//ofxXmlSettings settings;
+		ofxXmlSettings settings;
 		ImVec4 backgroundColor;
 		bool closeButtonOnWidgets = false;
 		
@@ -116,4 +126,7 @@ class ofApp : public ofBaseApp{
 		// Widget variables
 		bool cameraSettingsWidget = true;
 		bool camStatusWidget = true;
+		bool callibrateMonoWidget = false;
+		bool callibrateStereoWidget = false;
+		bool inMiddleOfCallibrating = false; // set to true whenever we're callibrating -- useful for callibration GUI logic
 };

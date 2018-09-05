@@ -158,7 +158,7 @@ void ofApp::rightFrameDraw()
 
 void ofApp::cvFrameDraw()
 {
-	edge.draw(320, 0);
+	cvImage.draw(320, 0);
 	//ofImage mask;
 	//mask.load(edge); // use a shader for this
 	//grey.draw(0, 480);
@@ -201,11 +201,11 @@ void ofApp::openCvStuff()
 {
 	
 	convertColor(leftEyeFrame, grey, CV_RGB2GRAY);
-	Canny(grey, edge, thresh1, thresh2, 3);
+	Canny(grey, cvImage, thresh1, thresh2, 3);
 	//Sobel(grey, sobel);
 	grey.update();
 	//sobel.update();
-	edge.update();
+	cvImage.update();
 	// StereoBM vs StereoSGBM vs adapt one from the papers?
 	
 	//printf("'stereo' has min disparity of: %i\n", stereo->getMinDisparity());
@@ -219,8 +219,8 @@ void ofApp::openCvStuff()
 	stereo->compute(leftGrey, rightGrey, dispGrey);
 	ofPixels dispPix;
 	toOf(dispGrey, dispPix);
-	edge.setFromPixels(dispPix);
-	edge.update();*/
+	cvImage.setFromPixels(dispPix);
+	cvImage.update();*/
 }
 
 /*
@@ -228,8 +228,49 @@ void ofApp::openCvStuff()
  * calibration data for both cameras -- they should be nearly identical. We'll use the 
  * single-camera calibration data to help calibrate our stereo camera setup.
  */
-void ofApp::calibrateMono()
+void ofApp::callibrateMono()
 {
+	
+
+	ImGui::Begin("Calibrate Individual PS3EYEs", &closeButtonOnWidgets, ImGuiWindowFlags_AlwaysAutoResize);
+	//ImGui::Text("Threshold 1");
+
+	// if haven't started capturing, be text input. once click "Begin Calibration", they draw
+	// as ImGui::Text, only usable inputs are "Capture Frame" and Cancel Calibration buttons 
+
+	if (inMiddleOfCallibrating) // this is where we come once we've begun callibrating -- we enter in "else" below
+	{
+		// only have "Capture Frame" and "Cancel Callibration" buttons in here, but also any
+		// mid-callibration output
+		ImGui::Text("Board width: %i squares", boardWidth);
+	}
+	else // this is where we come when callibrateMono() is first called.
+	{
+		// parameter input and "Begin Callibration" button
+		// do some "ImGui::SameLine" stuff to make it look like it does mid-callibration
+		ImGui::InputInt("Input Board Width", &boardWidth);
+		if (ImGui::Button("Begin Callibration"))
+		{
+			inMiddleOfCallibrating = true;
+		}
+	}
+
+	
+	// text input box for params (also declare them above here)
+	// when parm updated, update derivative params as well (boardSize, boardArea, etc.)
+	//      - will this happen automatically? input values rollover frame to frame, but
+	//        would other declared variables? Test :D
+	ImGui::End();
+
+	// for loop -- for each in numImages, do: 
+	//	- present user with button which captures frame
+	//	- on the frame, do the calibration things
+	//		- findChessboardCorners etc.
+	// - at end of for loop, allow option to take extra frames, 
+	// - or just export calibration data to file AND load it internally
+	// - exported filename: ps3eye_individual_alibration_mm-dd-yyyy.xml
+	
+
 
 }
 
@@ -237,7 +278,7 @@ void ofApp::calibrateMono()
  * Have button in Settings widget to calibrate, when pressed it launches calibrateStereo()
  * calibrateStereo() 
  */
-void ofApp::calibrateStereo()
+void ofApp::callibrateStereo()
 {
 
 }
@@ -284,10 +325,21 @@ void ofApp::draw(){
 		// overall settings widget, includes sub-widgets
 		// for each Eye: draw settings widget
 	}
+
+	if (callibrateMonoWidget)
+	{
+		callibrateMono();
+	}
+
+	
+	if (callibrateStereoWidget)
+	{
+		callibrateStereo();
+	}
+	
+
 	gui.end();
 
-	// let display handlers manage displaying images -- default to displaying both image sources, left is first if only one present --
-	// but for now just display one image directly
 }
 
 /*
@@ -307,7 +359,17 @@ void ofApp::drawCameraSettingsWidget()
 	ImGui::Checkbox("Left Camera Draw", &leftCameraDraw);
 	ImGui::Checkbox("Right Camera Draw", &rightCameraDraw);
 	ImGui::Checkbox("Processd Image Draw", &cvDraw);
-	// if more than one camera: 
+	
+
+	if (ImGui::Button("Callibrate individual PS3 Eye"))
+	{
+		callibrateMonoWidget = true;
+	}
+
+	if (ImGui::Button("Callibrate Stereo PS3 Eye Setup"))
+	{
+		callibrateStereoWidget = true;
+	}
 
 	if (ImGui::Button("Swap Left and Right Cameras"))
 	{
@@ -353,8 +415,6 @@ void ofApp::drawCameraStatus()
 
 void ofApp::saveSettings()
 {
-	//ourSettings.setValue("settings:cvDraw", cvDraw);
-	ofxXmlSettings settings;
 	settings.setValue("settings:swapCameras", swapCameras);
 	//printf(swapCameras ? "true" : "false");
 	settings.saveFile("settings.xml");
@@ -370,19 +430,13 @@ void ofApp::saveSettings()
 }
 
 /*
- * Perhaps it's because we call this so early in ofApp.cpp, but it doesn't seem to load the settings properly.
- * However, it doesn't crash and I'd like a reminder to investigate more and fix if possible, so
- * the load/saveSettings functionality will remain for now.
+ * 
  */
 void ofApp::loadSettings()
 {
-	//ofDisableDataPath();
-	//settings.loadFile("/data/settings.xml");
-	ofxXmlSettings settings;
 	if (settings.loadFile("settings.xml"))
 	{
 		printf("Successfully loaded settings.xml.");
-		//printf("Setting is: %i", settings.getValue("settings:swapCameras", true));
 	}
 	else
 	{
