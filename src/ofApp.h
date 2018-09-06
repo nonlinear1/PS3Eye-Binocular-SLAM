@@ -24,6 +24,7 @@ class ofApp : public ofBaseApp{
 		void openCvStuff();
 		void saveSettings();
 		void loadSettings();
+		void loadSingleCallibration();
 		void callibrateMono();
 		void callibrateStereo();
 
@@ -42,13 +43,19 @@ class ofApp : public ofBaseApp{
 		void exit();
 
 		// calibrate single camera variables
+		bool loadedSingleCallibration = false; // if a callibration file is successfully loaded, set to tru
+		bool inMiddleOfCallibrating = false; // set to true whenever we're callibrating -- useful for callibration GUI logic
+		bool finishedCallibrating = false;
 		int boardWidth = 7; // width in squares
 		int boardHeight = 10; // height in squares
 		float squareSize = 22.5; // sidelength of squarse in mm
-		int numImages = 30; // how many frames to capture for calibration
+		int numFramesNeeded = 30; // how many frames to capture for calibration
+		int numFramesCaptured = 0; // counter for keeping track of how many callibratin frames we've captured
+
 		
 		cv::Size boardSize; // derived from above values
 		int boardArea;  // derived from above values
+
 
 		// opencv stuff
 
@@ -103,9 +110,9 @@ class ofApp : public ofBaseApp{
 		
 		bool leftCameraDraw = false;
 		bool rightCameraDraw = false;
-		bool cvDraw = true;// false;
+		bool cvDraw = false;
 		
-		// image + frame vars
+		// image + frame vars -- these are the folks that update every frame
 
 		unsigned char* leftPixels; // stores raw image data, pixel by pixel
 		unsigned char* rightPixels;
@@ -124,9 +131,11 @@ class ofApp : public ofBaseApp{
 		
 
 		// Widget variables
+		bool doOpenCvStuff = false;
 		bool cameraSettingsWidget = true;
 		bool camStatusWidget = true;
 		bool callibrateMonoWidget = false;
 		bool callibrateStereoWidget = false;
-		bool inMiddleOfCallibrating = false; // set to true whenever we're callibrating -- useful for callibration GUI logic
+		
+		
 };

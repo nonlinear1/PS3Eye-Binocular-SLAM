@@ -192,7 +192,12 @@ void ofApp::frameUpdater()
 
 	// if we're using openCV and stuff, render a composite first, then send to leftEyeFrame etc.
 	// ...or render to a FBO and just do that? That would fit nicely in a composite-maker function
-	openCvStuff();
+	
+	//if (!callibrateMonoWidget && !callibrateStereoWidget) // facilitates drawing captured frames w/ overlay?
+	if (doOpenCvStuff)
+	{
+		openCvStuff();
+	}
 }
 
 // toMat() function
@@ -242,16 +247,79 @@ void ofApp::callibrateMono()
 	{
 		// only have "Capture Frame" and "Cancel Callibration" buttons in here, but also any
 		// mid-callibration output
+		ImGui::Text("Captured %i of %i callibration images", numFramesCaptured, numFramesNeeded);
 		ImGui::Text("Board width: %i squares", boardWidth);
-	}
-	else // this is where we come when callibrateMono() is first called.
-	{
-		// parameter input and "Begin Callibration" button
-		// do some "ImGui::SameLine" stuff to make it look like it does mid-callibration
-		ImGui::InputInt("Input Board Width", &boardWidth);
-		if (ImGui::Button("Begin Callibration"))
+		if (numFramesCaptured >= numFramesNeeded)
 		{
-			inMiddleOfCallibrating = true;
+			inMiddleOfCallibrating = false;
+			finishedCallibrating = true;
+		}
+		if (ImGui::Button("Capture Frame"))
+		{
+			 // capture frame, send to callibration function
+			 // should we store a vector of frames for reference? output them along with the callibration data?
+			printf("\n");
+			printf(" _.---.__________|(0)|__\n");
+			printf("|. . . . . . . . . . . .|\n");
+			printf("|. . . . ._____. . . . .|\n");
+			printf("|. . . . /     \\ . . . .|\n");
+			printf("|. . . . | ( ) | . . . .|\n");
+			printf("|. . . . \\_____/ . . . .|\n");
+			printf("|. . . . . . . . . . . .|\n");
+			printf("|_______________________|\n"); // just because it was fun :)
+
+			// capture frame to variable
+			// have option to retake frame?
+			// write frame to file "/calibration-images/image01.bmp"
+			// call function with frame as param
+
+			numFramesCaptured +=1;
+			
+			toOf(leftMat, cvImage);
+			cvImage.update();
+
+			
+		}
+		if (ImGui::Button("Cancel Callibration"))
+		{
+			inMiddleOfCallibrating = false;
+		}
+	}
+	else // this is where we come when callibrateMono() is first called, and when we're done callibrating
+	{
+		if (finishedCallibrating)
+		{
+			if (ImGui::Button("Save Callibration File"))
+			{
+				// save file here
+				// when saving the callibration file, give warning about overwriting previous file. 
+				// maybe even a modal dialog if loadedSingleCallibration is true
+				finishedCallibrating = false;
+				callibrateMonoWidget = false;
+			}
+			if (ImGui::Button("Cancel"))
+			{
+				finishedCallibrating = false;
+				callibrateMonoWidget = false;
+				numFramesCaptured = 0;
+			}
+		}
+		else
+		{
+			// parameter input and "Begin Callibration" button
+			// do some "ImGui::SameLine" stuff to make it look like it does mid-callibration
+			ImGui::Text("Board width: ");
+			ImGui::SameLine(100);
+			ImGui::InputInt("##board width", &boardWidth);
+			if (ImGui::Button("Begin Callibration"))
+			{
+				inMiddleOfCallibrating = true;
+			}
+			if (ImGui::Button("Cancel"))
+			{
+				callibrateMonoWidget = false;
+				numFramesCaptured = 0; // reset that frame capture counter back to zero
+			}
 		}
 	}
 
@@ -305,6 +373,7 @@ void ofApp::draw(){
 
 	{
 		ImGui::Begin("Edge Detection Settings", &closeButtonOnWidgets, ImGuiWindowFlags_AlwaysAutoResize);
+		ImGui::Checkbox("Engage OpenCV", &doOpenCvStuff);
 		ImGui::Text("Threshold 1");
 		ImGui::SliderFloat("##1", &thresh1, 0.0f, 250.0f); // the "##" appears allow a non-displayed widget label
 		ImGui::Text("Threshold 2");
@@ -444,6 +513,19 @@ void ofApp::loadSettings()
 	}
 		//ofEnableDataPath();
 	swapCameras = settings.getValue("settings:swapCameras", false);
+}
+
+/*
+ * Attempts to load "singleCameraCallibration.xml"
+ */
+void ofApp::loadSingleCallibration()
+{
+	loadedSingleCallibration = settings.loadFile("singleCameraCallibration.xml");
+	if (loadedSingleCallibration)
+	{
+		// parse through all callibration values
+		// if one not present or invalid, set loadedSingleCallibration back to false
+	}
 }
 
 
