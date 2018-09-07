@@ -206,7 +206,7 @@ void ofApp::frameUpdater()
 
 void ofApp::openCvStuff()
 {
-	/*
+	
 	convertColor(leftEyeFrame, grey, CV_RGB2GRAY);
 	Canny(grey, cvImage, thresh1, thresh2, 3);
 	//Sobel(grey, sobel);
@@ -214,13 +214,14 @@ void ofApp::openCvStuff()
 	//sobel.update();
 	cvImage.update();
 	// StereoBM vs StereoSGBM vs adapt one from the papers?
-	*/
 	
+	
+	/*
 	Mat newMat;
 	undistort(leftMat, newMat, K, D);
 	toOf(newMat, cvImage);
 	cvImage.update();
-	
+	*/
 
 	//printf("'stereo' has min disparity of: %i\n", stereo->getMinDisparity());
 
@@ -262,14 +263,15 @@ void ofApp::calibrateMono()
 		// only have "Capture Frame" and "Cancel Calibration" buttons in here, but also any
 		// mid-calibration output
 		ImGui::Text("Captured %i of %i calibration images", numFramesCaptured, numFramesNeeded);
-		ImGui::Text("Board width: %i squares", boardWidth);
-		ImGui::Text("Board height: %i squares", boardHeight);
+		ImGui::Text("Board width: %i squares", boardWidth + 1);
+		ImGui::Text("Board height: %i squares", boardHeight + 1);
 		ImGui::Text("Square size: %fmm", squareSize);
 		ImGui::Text("Board area: %i squares", boardArea);
 
 		if (numFramesCaptured >= numFramesNeeded)
 		{
 			// now we're ready to call the final calibration number crunching function
+			
 			monoCalibrateFinal();
 
 			inMiddleOfCalibrating = false;
@@ -331,7 +333,7 @@ void ofApp::calibrateMono()
 				singleCalibration << "K" << K;
 				singleCalibration << "D" << D;
 				singleCalibration << "boardWidth" << boardWidth + 1;
-				singleCalibration << "boardHeigt" << boardHeight + 1;
+				singleCalibration << "boardHeight" << boardHeight + 1;
 				singleCalibration << "squareSize" << squareSize;
 				singleCalibration << "numFramesNeeded" << numFramesNeeded;
 
@@ -345,6 +347,7 @@ void ofApp::calibrateMono()
 				finishedCalibrating = false;
 				calibrateMonoWidget = false;
 				numFramesCaptured = 0;
+				loadSingleCalibration();
 			}
 		}
 		else
@@ -369,6 +372,15 @@ void ofApp::calibrateMono()
 			//ImGui::SameLine(100);
 			ImGui::InputInt("##number of frames", &numFramesNeeded);
 
+			// gotta clear our vectors of vectors (of vectors) so they're usable again
+			vector<vector<cv::Point3f>>().swap(objectPoints);
+			vector<vector<cv::Point2f>>().swap(imagePoints);
+			vector<cv::Point2f>().swap(corners);
+
+			vector<cv::Mat>().swap(rotationVectors);
+			vector<cv::Mat>().swap(translationVectors);
+
+
 			if (ImGui::Button("Begin Calibration"))
 			{
 				// calculate derivative values here
@@ -382,6 +394,7 @@ void ofApp::calibrateMono()
 			{
 				calibrateMonoWidget = false;
 				numFramesCaptured = 0; // reset that frame capture counter back to zero
+				loadSingleCalibration();
 			}
 		}
 	}

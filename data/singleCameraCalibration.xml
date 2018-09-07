@@ -5,18 +5,18 @@
   <cols>3</cols>
   <dt>d</dt>
   <data>
-    5.1797068446553897e+02 0. 3.0677181214762061e+02 0.
-    5.1763687093995793e+02 2.3657788398631396e+02 0. 0. 1.</data></K>
+    5.1677536070147175e+02 0. 3.0551841497099173e+02 0.
+    5.1679013110131200e+02 2.3509327240031004e+02 0. 0. 1.</data></K>
 <D type_id="opencv-matrix">
   <rows>1</rows>
   <cols>5</cols>
   <dt>d</dt>
   <data>
-    -1.1798473926573651e-01 4.8680116214890973e-01
-    -3.3106154701923012e-03 -2.7773712147236159e-04
-    -7.3707681099514866e-01</data></D>
+    -9.2997804944600471e-02 2.4199477621085544e-01
+    -2.3142389836797506e-03 2.4842339792687847e-06
+    -1.0684097869599501e-01</data></D>
 <boardWidth>7</boardWidth>
-<boardHeigt>10</boardHeigt>
+<boardHeight>10</boardHeight>
 <squareSize>2.2500000000000000e+01</squareSize>
-<numFramesNeeded>30</numFramesNeeded>
+<numFramesNeeded>40</numFramesNeeded>
 </opencv_storage>
