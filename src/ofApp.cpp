@@ -16,8 +16,9 @@ void ofApp::setup(){
 	ofSetWindowTitle("prototype build--bmp18");
 	ofSetDataPathRoot("../data/");
 	loadSettings();
+	loadSingleCalibration();
 
-	stereo = cv::StereoSGBM::create(minDisp, numDisp, blockSize, P1, P2, disp12MaxDiff, preFilterCap, uniquenessRatio, speckleWindowSize, speckleRange, mode);
+	//stereo = cv::StereoSGBM::create(minDisp, numDisp, blockSize, P1, P2, disp12MaxDiff, preFilterCap, uniquenessRatio, speckleWindowSize, speckleRange, mode);
 
 	//testFloat = 23.0f;
 
@@ -204,7 +205,7 @@ void ofApp::frameUpdater()
 
 void ofApp::openCvStuff()
 {
-	
+	/*
 	convertColor(leftEyeFrame, grey, CV_RGB2GRAY);
 	Canny(grey, cvImage, thresh1, thresh2, 3);
 	//Sobel(grey, sobel);
@@ -212,7 +213,14 @@ void ofApp::openCvStuff()
 	//sobel.update();
 	cvImage.update();
 	// StereoBM vs StereoSGBM vs adapt one from the papers?
+	*/
+
+	Mat newMat;
+	undistort(leftMat, newMat, K, D);
+	toOf(newMat, cvImage);
+	cvImage.update();
 	
+
 	//printf("'stereo' has min disparity of: %i\n", stereo->getMinDisparity());
 
 	/*
@@ -303,9 +311,26 @@ void ofApp::calibrateMono()
 				// save file here
 				// when saving the calibration file, give warning about overwriting previous file. 
 				// maybe even a modal dialog if loadedSingleCalibration is true
+				/*
+				FileStorage fs("calibration.txt", FileStorage::WRITE);
+				fs << "K" << K;
+				fs << "D" << D;
+				fs << "boardWidth" << boardWidth + 1;
+				fs << "boardHeigt" << boardHeight + 1;
+				fs << "squareSize" << squareSize;
+				*/
+				FileStorage singleCalibration("../data/singleCameraCalibration.xml", FileStorage::WRITE);
+				singleCalibration << "K" << K;
+				singleCalibration << "D" << D;
+				singleCalibration << "boardWidth" << boardWidth + 1;
+				singleCalibration << "boardHeigt" << boardHeight + 1;
+				singleCalibration << "squareSize" << squareSize;
+				singleCalibration << "numFramesNeeded" << numFramesNeeded;
+
 				finishedCalibrating = false;
 				calibrateMonoWidget = false;
 				numFramesCaptured = 0;
+				loadedSingleCalibration = true;
 			}
 			if (ImGui::Button("Cancel"))
 			{
@@ -545,6 +570,7 @@ void ofApp::drawCameraStatus()
 {
 	ImGui::Begin("PS3 Eye Camera Status", &closeButtonOnWidgets, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Text("Number of cameras attached: %i", numberOfCams);
+	ImGui::Text("Individual camera calibration %s", loadedSingleCalibration ? "is loaded" : "is not loaded");
 	// for (each camera):
 	//     resolution, refresh rate, left/right
 	if (leftCam)
@@ -601,11 +627,23 @@ void ofApp::loadSettings()
  */
 void ofApp::loadSingleCalibration()
 {
-	loadedSingleCalibration = settings.loadFile("singleCameraCalibration.xml");
+	//loadedSingleCalibration = settings.loadFile("singleCameraCalibration.xml");
+	FileStorage singleCalibration;
+	loadedSingleCalibration = singleCalibration.open("../data/singleCameraCalibration.xml", FileStorage::READ);
 	if (loadedSingleCalibration)
 	{
 		// parse through all calibration values
 		// if one not present or invalid, set loadedSingleCalibration back to false
+		singleCalibration["K"] >> K;
+		singleCalibration["D"] >> D;
+		singleCalibration["boardWidth"] >> boardWidth;
+		singleCalibration["boardHeight"] >> boardHeight;
+		singleCalibration["squareSize"] >> squareSize;
+		printf("Successfully loaded single calibration file\n");
+	}
+	else
+	{
+		printf("Couldn't load single calibration file");
 	}
 }
 
