@@ -19,6 +19,7 @@ void ofApp::setup(){
 	loadSingleCalibration();
 
 	//stereo = cv::StereoSGBM::create(minDisp, numDisp, blockSize, P1, P2, disp12MaxDiff, preFilterCap, uniquenessRatio, speckleWindowSize, speckleRange, mode);
+	stereo2 = cv::StereoBM::create(numDisp, blockSize);
 
 	//testFloat = 23.0f;
 
@@ -214,7 +215,7 @@ void ofApp::openCvStuff()
 	cvImage.update();
 	// StereoBM vs StereoSGBM vs adapt one from the papers?
 	*/
-
+	
 	Mat newMat;
 	undistort(leftMat, newMat, K, D);
 	toOf(newMat, cvImage);
@@ -223,16 +224,23 @@ void ofApp::openCvStuff()
 
 	//printf("'stereo' has min disparity of: %i\n", stereo->getMinDisparity());
 
+	
 	/*
 	convertColor(leftEyeFrame, lGrey, CV_RGB2GRAY);
 	convertColor(rightEyeFrame, rGrey, CV_RGB2GRAY);
-	leftGrey = toCv(lGrey);
-	rightGrey = toCv(rGrey);
+
+	Mat lleftGrey = toCv(lGrey);
+	Mat rrightGrey = toCv(rGrey);
+
+	undistort(lleftGrey, leftGrey, K, D);
+	undistort(rrightGrey, rightGrey, K, D);
+
 	//stereo->compute(leftGrey, rightGrey, dispGrey);
-	stereo->compute(leftGrey, rightGrey, dispGrey);
-	ofPixels dispPix;
-	toOf(dispGrey, dispPix);
-	cvImage.setFromPixels(dispPix);
+	stereo2->compute(leftGrey, rightGrey, dispGrey);
+
+	//drawMat(dispGrey, 320, 0);
+
+	toOf(dispGrey, cvImage);
 	cvImage.update();*/
 }
 
@@ -612,11 +620,11 @@ void ofApp::loadSettings()
 {
 	if (settings.loadFile("settings.xml"))
 	{
-		printf("Successfully loaded settings.xml.");
+		printf("Successfully loaded settings.xml\n");
 	}
 	else
 	{
-		printf("Couldn't load settings.xml");
+		printf("Couldn't load settings.xml\n");
 	}
 		//ofEnableDataPath();
 	swapCameras = settings.getValue("settings:swapCameras", false);
@@ -639,11 +647,11 @@ void ofApp::loadSingleCalibration()
 		singleCalibration["boardWidth"] >> boardWidth;
 		singleCalibration["boardHeight"] >> boardHeight;
 		singleCalibration["squareSize"] >> squareSize;
-		printf("Successfully loaded single calibration file\n");
+		printf("Successfully loaded singleCameraCalibration.xml\n");
 	}
 	else
 	{
-		printf("Couldn't load single calibration file");
+		printf("Couldn't load singleCameraCalibration.xml\n");
 	}
 }
 
@@ -707,7 +715,7 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
 void ofApp::exit()
 {
 	//delete stereo;
+	delete stereo2;
 	saveSettings();
 	deInitCams();
-	//testFloat->store(); // test out the persistent storage of values/settings
 }

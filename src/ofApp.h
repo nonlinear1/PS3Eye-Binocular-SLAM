@@ -70,12 +70,13 @@ class ofApp : public ofBaseApp{
 		// opencv stuff
 
 		cv::Ptr<cv::StereoSGBM> stereo;
+		cv::Ptr<cv::StereoBM> stereo2;
 		ofImage lGrey;
 		ofImage rGrey;
 		cv::Mat leftGrey;
 		cv::Mat rightGrey;
 		cv::Mat dispGrey;
-		int numDisp = 144;//48;//16;//144; // 16?
+		int numDisp = 48;//16;//144; // 16?
 		int preFilterCap = 63;
 		int minDisp = -39;
 		int uniquenessRatio = 10;
