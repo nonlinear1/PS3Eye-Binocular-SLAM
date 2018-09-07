@@ -24,9 +24,12 @@ class ofApp : public ofBaseApp{
 		void openCvStuff();
 		void saveSettings();
 		void loadSettings();
-		void loadSingleCallibration();
-		void callibrateMono();
-		void callibrateStereo();
+		void loadSingleCalibration();
+		void calibrateMono();
+		void calibrateStereo();
+
+		void monoCalibrateOnFrame();// (cv::Mat frame);
+		void monoCalibrateFinal();
 
 
 		void keyPressed(int key);
@@ -43,19 +46,26 @@ class ofApp : public ofBaseApp{
 		void exit();
 
 		// calibrate single camera variables
-		bool loadedSingleCallibration = false; // if a callibration file is successfully loaded, set to tru
-		bool inMiddleOfCallibrating = false; // set to true whenever we're callibrating -- useful for callibration GUI logic
-		bool finishedCallibrating = false;
+		bool loadedSingleCalibration = false; // if a calibration file is successfully loaded, set to tru
+		bool inMiddleOfCalibrating = false; // set to true whenever we're calibrating -- useful for calibration GUI logic
+		bool finishedCalibrating = false;
 		int boardWidth = 7; // width in squares
 		int boardHeight = 10; // height in squares
 		float squareSize = 22.5; // sidelength of squarse in mm
 		int numFramesNeeded = 30; // how many frames to capture for calibration
-		int numFramesCaptured = 0; // counter for keeping track of how many callibratin frames we've captured
-
+		int numFramesCaptured = 0; // counter for keeping track of how many calibratin frames we've captured
 		
 		cv::Size boardSize; // derived from above values
 		int boardArea;  // derived from above values
 
+		vector<vector<cv::Point3f>> objectPoints;
+		vector<vector<cv::Point2f>> imagePoints;
+		vector<cv::Point2f> corners;
+
+		cv::Mat K; // camera matrix
+		cv::Mat D; // distortion coefficients
+		vector<cv::Mat> rotationVectors;
+		vector<cv::Mat> translationVectors;
 
 		// opencv stuff
 
@@ -134,8 +144,8 @@ class ofApp : public ofBaseApp{
 		bool doOpenCvStuff = false;
 		bool cameraSettingsWidget = true;
 		bool camStatusWidget = true;
-		bool callibrateMonoWidget = false;
-		bool callibrateStereoWidget = false;
+		bool calibrateMonoWidget = false;
+		bool calibrateStereoWidget = false;
 		
 		
 };

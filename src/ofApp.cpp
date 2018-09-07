@@ -193,7 +193,7 @@ void ofApp::frameUpdater()
 	// if we're using openCV and stuff, render a composite first, then send to leftEyeFrame etc.
 	// ...or render to a FBO and just do that? That would fit nicely in a composite-maker function
 	
-	//if (!callibrateMonoWidget && !callibrateStereoWidget) // facilitates drawing captured frames w/ overlay?
+	//if (!calibrateMonoWidget && !calibrateStereoWidget) // facilitates drawing captured frames w/ overlay?
 	if (doOpenCvStuff)
 	{
 		openCvStuff();
@@ -233,97 +233,126 @@ void ofApp::openCvStuff()
  * calibration data for both cameras -- they should be nearly identical. We'll use the 
  * single-camera calibration data to help calibrate our stereo camera setup.
  */
-void ofApp::callibrateMono()
+void ofApp::calibrateMono()
 {
-	
-
 	ImGui::Begin("Calibrate Individual PS3EYEs", &closeButtonOnWidgets, ImGuiWindowFlags_AlwaysAutoResize);
 	//ImGui::Text("Threshold 1");
 
 	// if haven't started capturing, be text input. once click "Begin Calibration", they draw
 	// as ImGui::Text, only usable inputs are "Capture Frame" and Cancel Calibration buttons 
 
-	if (inMiddleOfCallibrating) // this is where we come once we've begun callibrating -- we enter in "else" below
+	if (inMiddleOfCalibrating) // this is where we come once we've begun calibrating -- we enter in "else" below
 	{
-		// only have "Capture Frame" and "Cancel Callibration" buttons in here, but also any
-		// mid-callibration output
-		ImGui::Text("Captured %i of %i callibration images", numFramesCaptured, numFramesNeeded);
+		// only have "Capture Frame" and "Cancel Calibration" buttons in here, but also any
+		// mid-calibration output
+		ImGui::Text("Captured %i of %i calibration images", numFramesCaptured, numFramesNeeded);
 		ImGui::Text("Board width: %i squares", boardWidth);
+		ImGui::Text("Board height: %i squares", boardHeight);
+		ImGui::Text("Square size: %fmm", squareSize);
+		ImGui::Text("Board area: %i squares", boardArea);
+
 		if (numFramesCaptured >= numFramesNeeded)
 		{
-			inMiddleOfCallibrating = false;
-			finishedCallibrating = true;
+			// now we're ready to call the final calibration number crunching function
+			monoCalibrateFinal();
+
+			inMiddleOfCalibrating = false;
+			finishedCalibrating = true;
 		}
 		if (ImGui::Button("Capture Frame"))
 		{
-			 // capture frame, send to callibration function
-			 // should we store a vector of frames for reference? output them along with the callibration data?
-			printf("\n");
-			printf(" _.---.__________|(0)|__\n");
-			printf("|. . . . . . . . . . . .|\n");
-			printf("|. . . . ._____. . . . .|\n");
-			printf("|. . . . /     \\ . . . .|\n");
-			printf("|. . . . | ( ) | . . . .|\n");
-			printf("|. . . . \\_____/ . . . .|\n");
-			printf("|. . . . . . . . . . . .|\n");
-			printf("|_______________________|\n"); // just because it was fun :)
-
+			 // capture frame, send to calibration function
+			 // should we store a vector of frames for reference? output them along with the calibration data?
+			{
+				printf("\n");
+				printf(" _.---.__________|(0)|__\n");
+				printf("|. . . . . . . . . . . .|\n");
+				printf("|. . . . ._____. . . . .|\n");
+				printf("|. . . . /     \\ . . . .|\n");
+				printf("|. . . . | ( ) | . . . .|\n");
+				printf("|. . . . \\_____/ . . . .|\n");
+				printf("|. . . . . . . . . . . .|\n");
+				printf("|_______________________|\n"); // just because it was fun :)
+			}
 			// capture frame to variable
 			// have option to retake frame?
-			// write frame to file "/calibration-images/image01.bmp"
+			// write frame to file "/calibration-images/image01.png"?
 			// call function with frame as param
 
 			numFramesCaptured +=1;
 			
-			toOf(leftMat, cvImage);
-			cvImage.update();
+			//toOf(leftMat, cvImage);
+			//cvImage.update();
 
-			
+			//monoCalibrateOnFrame(leftMat);
+			monoCalibrateOnFrame();
 		}
-		if (ImGui::Button("Cancel Callibration"))
+		if (ImGui::Button("Cancel Calibration"))
 		{
-			inMiddleOfCallibrating = false;
+			inMiddleOfCalibrating = false;
 		}
 	}
-	else // this is where we come when callibrateMono() is first called, and when we're done callibrating
+	else // this is where we come when calibrateMono() is first called, and when we're done calibrating
 	{
-		if (finishedCallibrating)
+		if (finishedCalibrating)
 		{
-			if (ImGui::Button("Save Callibration File"))
+			ImGui::Text("Warning: If saved, this batch of calibration data \nwill overwrite any previous calibration files.");
+			ImGui::Text("Please backup any calibration files you wish saved.");
+			if (ImGui::Button("Save Calibration File"))
 			{
 				// save file here
-				// when saving the callibration file, give warning about overwriting previous file. 
-				// maybe even a modal dialog if loadedSingleCallibration is true
-				finishedCallibrating = false;
-				callibrateMonoWidget = false;
+				// when saving the calibration file, give warning about overwriting previous file. 
+				// maybe even a modal dialog if loadedSingleCalibration is true
+				finishedCalibrating = false;
+				calibrateMonoWidget = false;
+				numFramesCaptured = 0;
 			}
 			if (ImGui::Button("Cancel"))
 			{
-				finishedCallibrating = false;
-				callibrateMonoWidget = false;
+				finishedCalibrating = false;
+				calibrateMonoWidget = false;
 				numFramesCaptured = 0;
 			}
 		}
 		else
 		{
-			// parameter input and "Begin Callibration" button
-			// do some "ImGui::SameLine" stuff to make it look like it does mid-callibration
-			ImGui::Text("Board width: ");
-			ImGui::SameLine(100);
+			// parameter input and "Begin Calibration" button
+			// do some "ImGui::SameLine" stuff to make it look like it does mid-calibration
+			ImGui::Text("Board width in squares: ");
+			//ImGui::SameLine(100);
 			ImGui::InputInt("##board width", &boardWidth);
-			if (ImGui::Button("Begin Callibration"))
+
+			ImGui::Text("Board height in squares: ");
+			//ImGui::SameLine(100);
+			ImGui::InputInt("##board height", &boardHeight);
+
+			ImGui::Text("Square side length in mm:");
+			//ImGui::Text("length (mm): ");
+			//ImGui::SameLine(100);
+			ImGui::InputFloat("##square width", &squareSize);
+
+			ImGui::Text("Number of calibration images");
+			//ImGui::Text("images: ");
+			//ImGui::SameLine(100);
+			ImGui::InputInt("##number of frames", &numFramesNeeded);
+
+			if (ImGui::Button("Begin Calibration"))
 			{
-				inMiddleOfCallibrating = true;
+				// calculate derivative values here
+				boardWidth -= 1;  // we subtract 1 to count interior corners;
+				boardHeight -= 1; // only want points where 4 squares meet
+				boardSize = Size(boardWidth, boardHeight); 
+				boardArea = boardWidth * boardHeight;
+				inMiddleOfCalibrating = true;
 			}
 			if (ImGui::Button("Cancel"))
 			{
-				callibrateMonoWidget = false;
+				calibrateMonoWidget = false;
 				numFramesCaptured = 0; // reset that frame capture counter back to zero
 			}
 		}
 	}
 
-	
 	// text input box for params (also declare them above here)
 	// when parm updated, update derivative params as well (boardSize, boardArea, etc.)
 	//      - will this happen automatically? input values rollover frame to frame, but
@@ -337,16 +366,68 @@ void ofApp::callibrateMono()
 	// - at end of for loop, allow option to take extra frames, 
 	// - or just export calibration data to file AND load it internally
 	// - exported filename: ps3eye_individual_alibration_mm-dd-yyyy.xml
+}
+
+/*
+ * Modified from https://sourishghosh.com/2016/camera-calibration-cpp-opencv/ 
+ * and https://github.com/sourishg/stereo-calibration/blob/master/calib_intrinsic.cpp
+ */
+void ofApp::monoCalibrateOnFrame()//(Mat ourFrame)
+{
+	Mat grey;
+	//cvtColor(ourFrame, grey, CV_RGB2GRAY);
+	cvtColor(leftMat, grey, CV_RGB2GRAY);
+	toOf(grey, cvImage);
+	cvImage.update();
+
+	bool found = false;
+	found = findChessboardCorners(grey, boardSize, corners, CV_CALIB_CB_ADAPTIVE_THRESH | CV_CALIB_CB_FILTER_QUADS);
 	
+	if (found)
+	{
+		cornerSubPix(grey, corners, Size(5, 5), Size(-1, -1), TermCriteria(CV_TERMCRIT_EPS | CV_TERMCRIT_ITER, 30, 0.1));
+		drawChessboardCorners(grey, boardSize, corners, found);
+		toOf(grey, cvImage);
+		cvImage.update();
+	}
+	else
+	{
+		//printf("No chessboard corners found :/\n");
+		numFramesCaptured -= 1; // if this frame didn't work, we'll have to capture another one.
+	}
 
+	vector<Point3f> objPts;
 
+	for (int i = 0; i < boardHeight; i++)
+	{
+		for (int j = 0; j < boardWidth; j++)
+		{
+			objPts.push_back(Point3f((float)j * squareSize, (float)i * squareSize, 0));
+		}
+	}
+
+	if (found)
+	{
+		imagePoints.push_back(corners);
+		objectPoints.push_back(objPts);
+	}
+
+}
+
+void ofApp::monoCalibrateFinal()
+{
+	int flag = 0;
+	flag |= CV_CALIB_FIX_K4;
+	flag |= CV_CALIB_FIX_K5;
+
+	calibrateCamera(objectPoints, imagePoints, leftMat.size(), K, D, rotationVectors, translationVectors, flag);
 }
 
 /*
  * Have button in Settings widget to calibrate, when pressed it launches calibrateStereo()
  * calibrateStereo() 
  */
-void ofApp::callibrateStereo()
+void ofApp::calibrateStereo()
 {
 
 }
@@ -395,15 +476,15 @@ void ofApp::draw(){
 		// for each Eye: draw settings widget
 	}
 
-	if (callibrateMonoWidget)
+	if (calibrateMonoWidget)
 	{
-		callibrateMono();
+		calibrateMono();
 	}
 
 	
-	if (callibrateStereoWidget)
+	if (calibrateStereoWidget)
 	{
-		callibrateStereo();
+		calibrateStereo();
 	}
 	
 
@@ -430,14 +511,14 @@ void ofApp::drawCameraSettingsWidget()
 	ImGui::Checkbox("Processd Image Draw", &cvDraw);
 	
 
-	if (ImGui::Button("Callibrate individual PS3 Eye"))
+	if (ImGui::Button("Calibrate individual PS3 Eye"))
 	{
-		callibrateMonoWidget = true;
+		calibrateMonoWidget = true;
 	}
 
-	if (ImGui::Button("Callibrate Stereo PS3 Eye Setup"))
+	if (ImGui::Button("Calibrate Stereo PS3 Eye Setup"))
 	{
-		callibrateStereoWidget = true;
+		calibrateStereoWidget = true;
 	}
 
 	if (ImGui::Button("Swap Left and Right Cameras"))
@@ -516,15 +597,15 @@ void ofApp::loadSettings()
 }
 
 /*
- * Attempts to load "singleCameraCallibration.xml"
+ * Attempts to load "singleCameraCalibration.xml"
  */
-void ofApp::loadSingleCallibration()
+void ofApp::loadSingleCalibration()
 {
-	loadedSingleCallibration = settings.loadFile("singleCameraCallibration.xml");
-	if (loadedSingleCallibration)
+	loadedSingleCalibration = settings.loadFile("singleCameraCalibration.xml");
+	if (loadedSingleCalibration)
 	{
-		// parse through all callibration values
-		// if one not present or invalid, set loadedSingleCallibration back to false
+		// parse through all calibration values
+		// if one not present or invalid, set loadedSingleCalibration back to false
 	}
 }
 
