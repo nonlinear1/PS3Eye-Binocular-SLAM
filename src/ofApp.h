@@ -25,11 +25,15 @@ class ofApp : public ofBaseApp{
 		void saveSettings();
 		void loadSettings();
 		void loadSingleCalibration();
+		void loadStereoCalibration();
 		void calibrateMono();
 		void calibrateStereo();
 
 		void monoCalibrateOnFrame();// (cv::Mat frame);
 		void monoCalibrateFinal();
+
+		void stereoCalibrateOnFrame();
+		void stereoCalibrateFinal();
 
 
 		void keyPressed(int key);
@@ -45,8 +49,9 @@ class ofApp : public ofBaseApp{
 		void gotMessage(ofMessage msg);
 		void exit();
 
-		// calibrate single camera variables
+		// ***** calibrate single/stereo camera(s) variables
 		bool loadedSingleCalibration = false; // if a calibration file is successfully loaded, set to tru
+		bool loadedStereoCalibration = false;
 		bool inMiddleOfCalibrating = false; // set to true whenever we're calibrating -- useful for calibration GUI logic
 		bool finishedCalibrating = false;
 		int boardWidth = 7; // width in squares
@@ -58,21 +63,35 @@ class ofApp : public ofBaseApp{
 		cv::Size boardSize; // derived from above values
 		int boardArea;  // derived from above values
 
-		vector<vector<cv::Point3f>> objectPoints;
+		// ***** calibrate single camera variables
 		vector<vector<cv::Point2f>> imagePoints;
+		vector<vector<cv::Point3f>> objectPoints;
 		vector<cv::Point2f> corners;
 
-		cv::Mat K; // camera matrix
+		cv::Mat K, oldK; // camera matrices -- K is the OptimalNewCameraMatrix, K is the original camera matrix
 		cv::Mat D; // distortion coefficients
+		cv::Rect* regionOfInterest;
 		vector<cv::Mat> rotationVectors;
 		vector<cv::Mat> translationVectors;
 
-		// opencv stuff
+		// ***** calibrate stereo camera variables
+		// we'll reuse the objectPoints vector
+		vector<vector<cv::Point2f>> imagePoints_left;
+		vector<vector<cv::Point2f>> imagePoints_right;
+		vector<cv::Point2f> lCorners, rCorners;
+		cv::Mat R, F, E;
+		cv::Vec3d T;
+		cv::Mat lR, rR, lP, rP, Q;
+
+		// ***** opencv stuff
 
 		cv::Ptr<cv::StereoSGBM> stereo;
 		cv::Ptr<cv::StereoBM> stereo2;
 		ofImage lGrey;
 		ofImage rGrey;
+
+		cv::Mat lleftGrey, rrightGrey;
+
 		cv::Mat leftGrey;
 		cv::Mat rightGrey;
 		cv::Mat dispGrey;
@@ -86,10 +105,13 @@ class ofApp : public ofBaseApp{
 		bool fullDP = false;
 		int P1 = 480;
 		int P2 = 640;
-		int blockSize = 13;
+		int blockSize = 21;// 15;// 21;//13;
 		int mode = 0;
 
-		//****
+		cv::Mat leftImg, rightImg, leftDisp, rightDisp, leftDsc, rightDesc;
+		vector<cv::KeyPoint> leftKP, rightKP;
+
+		// **
 
 		ofImage grey, sobel;
 		ofImage cvImage;
@@ -97,7 +119,7 @@ class ofApp : public ofBaseApp{
 		float thresh2 = 70;
 		//end opencv
 
-		// ps3eye stuff
+		// ***** ps3eye stuff
 		int cam_width = 640;
 		int cam_height = 480;
 		int cam_refresh = 60;
@@ -111,7 +133,7 @@ class ofApp : public ofBaseApp{
 		int numberOfCams; // number of PS3 Eye Cameras attached
 		bool swapCameras; // if true on exit, will tell app to swap cameras automatically on next launch
 
-		// back to our stuff
+		// ***** back to our stuff
 		
 		ofxImGui::Gui gui;
 		ofxXmlSettings settings;
@@ -123,7 +145,7 @@ class ofApp : public ofBaseApp{
 		bool rightCameraDraw = false;
 		bool cvDraw = false;
 		
-		// image + frame vars -- these are the folks that update every frame
+		// ***** image + frame vars -- these are the folks that update every frame
 
 		unsigned char* leftPixels; // stores raw image data, pixel by pixel
 		unsigned char* rightPixels;
@@ -139,9 +161,12 @@ class ofApp : public ofBaseApp{
 		cv::Mat leftMat;
 		cv::Mat rightMat;
 
+		cv::Mat undistortMapX;
+		cv::Mat undistortMapY;
+
 		
 
-		// Widget variables
+		// ***** Widget variables
 		bool doOpenCvStuff = false;
 		bool cameraSettingsWidget = true;
 		bool camStatusWidget = true;

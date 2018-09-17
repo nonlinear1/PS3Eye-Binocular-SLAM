@@ -16,7 +16,6 @@ void ofApp::setup(){
 	ofSetWindowTitle("prototype build--bmp18");
 	ofSetDataPathRoot("../data/");
 	loadSettings();
-	loadSingleCalibration();
 
 	//stereo = cv::StereoSGBM::create(minDisp, numDisp, blockSize, P1, P2, disp12MaxDiff, preFilterCap, uniquenessRatio, speckleWindowSize, speckleRange, mode);
 	stereo2 = cv::StereoBM::create(numDisp, blockSize);
@@ -71,6 +70,8 @@ void ofApp::initCams()
 		leftPixels = new unsigned char[leftCam->cam_width * leftCam->cam_height * 3]; // raw image size is (width * height * color channels per pixel) bytes
 		leftCameraDraw = true;
 		leftEyeFrame_scaled.allocate(320, 240, 3);
+		
+		loadSingleCalibration(); // Loads calibration data if present!
 
 		if (numberOfCams > 1)
 		{
@@ -80,10 +81,14 @@ void ofApp::initCams()
 			rightCameraDraw = true;
 			rightEyeFrame_scaled.allocate(320, 240, 3);
 
+			loadStereoCalibration();
+
 			if (swapCameras)
 			{
 				swap(leftCam, rightCam);
 			}
+
+			// TODO: loadStereoCalibration(); 
 		}
 	}
 
@@ -161,9 +166,6 @@ void ofApp::rightFrameDraw()
 void ofApp::cvFrameDraw()
 {
 	cvImage.draw(320, 0);
-	//ofImage mask;
-	//mask.load(edge); // use a shader for this
-	//grey.draw(0, 480);
 }
 
 //--------------------------------------------------------------
@@ -175,6 +177,14 @@ void ofApp::update(){
 	
 	
 	frameUpdater(); // updates left and right frames
+
+	// if we're using openCV and stuff, render a composite first, then send to leftEyeFrame etc.
+	// ...or render to a FBO and just do that? That would fit nicely in a composite-maker function.
+	//if (!calibrateMonoWidget && !calibrateStereoWidget) // facilitates drawing captured frames w/ overlay?
+	if (doOpenCvStuff)
+	{
+		openCvStuff();
+	}
 }
 
 void ofApp::frameUpdater()
@@ -190,15 +200,6 @@ void ofApp::frameUpdater()
 	{
 		rightEyeFrame.setFromPixels(rightCam->grabRawFrame(), rightCam->cam_width, rightCam->cam_height, 3);
 		rightMat = toCv(rightEyeFrame);
-	}
-
-	// if we're using openCV and stuff, render a composite first, then send to leftEyeFrame etc.
-	// ...or render to a FBO and just do that? That would fit nicely in a composite-maker function
-	
-	//if (!calibrateMonoWidget && !calibrateStereoWidget) // facilitates drawing captured frames w/ overlay?
-	if (doOpenCvStuff)
-	{
-		openCvStuff();
 	}
 }
 
@@ -216,22 +217,34 @@ void ofApp::openCvStuff()
 	// StereoBM vs StereoSGBM vs adapt one from the papers?
 	
 	
+	
+
 	/*
 	Mat newMat;
-	undistort(leftMat, newMat, K, D);
+	convertColor(leftEyeFrame, lGrey, CV_RGB2GRAY);
+	leftGrey = toCv(lGrey);
+	undistort(leftMat, newMat, oldK, D, K);
+	
+	// convert leftGrey from CV_8UC1 to CV_32FC1
+	//leftGrey.convertTo(leftGrey, CV_32FC1, 1.0 / 255.0);
+
+	//remap(leftGrey, newMat, undistortMapX, undistortMapY, INTER_LINEAR, BORDER_CONSTANT, Scalar(0, 0, 0));
 	toOf(newMat, cvImage);
 	cvImage.update();
 	*/
 
 	//printf("'stereo' has min disparity of: %i\n", stereo->getMinDisparity());
 
-	
 	/*
+	
 	convertColor(leftEyeFrame, lGrey, CV_RGB2GRAY);
 	convertColor(rightEyeFrame, rGrey, CV_RGB2GRAY);
 
-	Mat lleftGrey = toCv(lGrey);
-	Mat rrightGrey = toCv(rGrey);
+	lleftGrey = toCv(lGrey);
+	rrightGrey = toCv(rGrey);
+
+	//undistort(lleftGrey, leftGrey, oldK, D, K);
+	//undistort(rrightGrey, rightGrey, oldK, D, K);
 
 	undistort(lleftGrey, leftGrey, K, D);
 	undistort(rrightGrey, rightGrey, K, D);
@@ -240,9 +253,23 @@ void ofApp::openCvStuff()
 	stereo2->compute(leftGrey, rightGrey, dispGrey);
 
 	//drawMat(dispGrey, 320, 0);
+	//dispGrey.convertTo(dispGrey, CV_8UC1, 255/2);
 
 	toOf(dispGrey, cvImage);
-	cvImage.update();*/
+	
+	ofShortColor c;
+	for (int i = 0; i < leftCam->cam_height; i++)
+	{
+		for (int j = 0; j < leftCam->cam_width; j++)
+		{
+			c = cvImage.getColor(j, i);
+			//cvImage.setColor(i, j, CLAMP(c.r, 0, 255));
+			cvImage.setColor(j, i, c / 4);
+		}
+	}
+
+	cvImage.update();
+	*/
 }
 
 /*
@@ -331,7 +358,9 @@ void ofApp::calibrateMono()
 				*/
 				FileStorage singleCalibration("../data/singleCameraCalibration.xml", FileStorage::WRITE);
 				singleCalibration << "K" << K;
+				//singleCalibration << "oldK" << oldK;
 				singleCalibration << "D" << D;
+				//singleCalibration << "regionOfInterest" << regionOfInterest;
 				singleCalibration << "boardWidth" << boardWidth + 1;
 				singleCalibration << "boardHeight" << boardHeight + 1;
 				singleCalibration << "squareSize" << squareSize;
@@ -443,7 +472,7 @@ void ofApp::monoCalibrateOnFrame()//(Mat ourFrame)
 	}
 
 	vector<Point3f> objPts;
-
+	// should this be in an if(found) control?
 	for (int i = 0; i < boardHeight; i++)
 	{
 		for (int j = 0; j < boardWidth; j++)
@@ -467,6 +496,8 @@ void ofApp::monoCalibrateFinal()
 	flag |= CV_CALIB_FIX_K5;
 
 	calibrateCamera(objectPoints, imagePoints, leftMat.size(), K, D, rotationVectors, translationVectors, flag);
+	//oldK = K;
+	//K = getOptimalNewCameraMatrix(oldK, D, leftMat.size(), 1, leftMat.size(), regionOfInterest);
 }
 
 /*
@@ -476,10 +507,215 @@ void ofApp::monoCalibrateFinal()
 void ofApp::calibrateStereo()
 {
 
+	ImGui::Begin("Calibrate Stereo PS3EYE Setup", &closeButtonOnWidgets, ImGuiWindowFlags_AlwaysAutoResize);
+	if (inMiddleOfCalibrating) // this is where we come once we've begun calibrating -- we enter in "else" below
+	{
+		// only have "Capture Frame" and "Cancel Calibration" buttons in here, but also any
+		// mid-calibration output
+		ImGui::Text("Captured %i of %i calibration images", numFramesCaptured, numFramesNeeded);
+		ImGui::Text("Board width: %i squares", boardWidth + 1);
+		ImGui::Text("Board height: %i squares", boardHeight + 1);
+		ImGui::Text("Square size: %fmm", squareSize);
+		ImGui::Text("Board area: %i squares", boardArea);
+
+		if (numFramesCaptured >= numFramesNeeded)
+		{
+			// now we're ready to call the final calibration number crunching function
+
+			stereoCalibrateFinal();
+
+			inMiddleOfCalibrating = false;
+			finishedCalibrating = true;
+		}
+		if (ImGui::Button("Capture Frame"))
+		{
+			numFramesCaptured += 1;
+
+			stereoCalibrateOnFrame();
+		}
+		if (ImGui::Button("Cancel Calibration"))
+		{
+			inMiddleOfCalibrating = false;
+		}
+	}
+	else // this is where we come when calibrateMono() is first called, and when we're done calibrating
+	{
+		if (finishedCalibrating)
+		{
+			ImGui::Text("Warning: If saved, this batch of calibration data \nwill overwrite any previous calibration files.");
+			ImGui::Text("Please backup any calibration files you wish saved.");
+			if (ImGui::Button("Save Calibration File"))
+			{
+				// save file here
+				// when saving the calibration file, give warning about overwriting previous file. 
+				// maybe even a modal dialog if loadedSingleCalibration is true
+				/*
+				FileStorage fs("calibration.txt", FileStorage::WRITE);
+				fs << "K" << K;
+				fs << "D" << D;
+				fs << "boardWidth" << boardWidth + 1;
+				fs << "boardHeigt" << boardHeight + 1;
+				fs << "squareSize" << squareSize;
+				*/
+				FileStorage stereoCalibration("../data/stereoCameraCalibration.xml", FileStorage::WRITE);
+				//singleCalibration << "K" << K;
+				//singleCalibration << "D" << D;
+				stereoCalibration << "K" << K;
+				stereoCalibration << "D" << D;
+				stereoCalibration << "R" << R;
+				stereoCalibration << "T" << T;
+				stereoCalibration << "E" << E;
+				stereoCalibration << "F" << F;
+
+				stereoCalibration << "lR" << lR;
+				stereoCalibration << "rR" << rR;
+				stereoCalibration << "lP" << lP;
+				stereoCalibration << "rP" << rP;
+				stereoCalibration << "Q" << Q;
+
+				stereoCalibration << "boardWidth" << boardWidth + 1;
+				stereoCalibration << "boardHeight" << boardHeight + 1;
+				stereoCalibration << "squareSize" << squareSize;
+				stereoCalibration << "numFramesNeeded" << numFramesNeeded;
+
+				finishedCalibrating = false;
+				calibrateStereoWidget = false;
+				numFramesCaptured = 0;
+				loadedStereoCalibration = true;
+			}
+			if (ImGui::Button("Cancel"))
+			{
+				finishedCalibrating = false;
+				calibrateStereoWidget = false;
+				numFramesCaptured = 0;
+				loadStereoCalibration();
+			}
+		}
+		else
+		{
+			// parameter input and "Begin Calibration" button
+			// do some "ImGui::SameLine" stuff to make it look like it does mid-calibration
+			ImGui::Text("Board width in squares: ");
+			//ImGui::SameLine(100);
+			ImGui::InputInt("##board width", &boardWidth);
+
+			ImGui::Text("Board height in squares: ");
+			//ImGui::SameLine(100);
+			ImGui::InputInt("##board height", &boardHeight);
+
+			ImGui::Text("Square side length in mm:");
+			//ImGui::Text("length (mm): ");
+			//ImGui::SameLine(100);
+			ImGui::InputFloat("##square width", &squareSize);
+
+			ImGui::Text("Number of calibration images");
+			//ImGui::Text("images: ");
+			//ImGui::SameLine(100);
+			ImGui::InputInt("##number of frames", &numFramesNeeded);
+
+			// gotta clear our vectors of vectors (of vectors) so they're usable again
+			vector<vector<cv::Point3f>>().swap(objectPoints);
+			vector<vector<cv::Point2f>>().swap(imagePoints_left);
+			vector<vector<cv::Point2f>>().swap(imagePoints_right);
+			vector<cv::Point2f>().swap(lCorners);
+			vector<cv::Point2f>().swap(rCorners);
+
+			//vector<cv::Mat>().swap(rotationVectors);
+			//vector<cv::Mat>().swap(translationVectors);
+
+
+			if (ImGui::Button("Begin Calibration"))
+			{
+				// calculate derivative values here
+				boardWidth -= 1;  // we subtract 1 to count interior corners;
+				boardHeight -= 1; // only want points where 4 squares meet
+				boardSize = Size(boardWidth, boardHeight);
+				boardArea = boardWidth * boardHeight;
+				inMiddleOfCalibrating = true;
+			}
+			if (ImGui::Button("Cancel"))
+			{
+				calibrateStereoWidget = false;
+				numFramesCaptured = 0; // reset that frame capture counter back to zero
+				loadStereoCalibration();
+			}
+		}
+	}
+
+	// text input box for params (also declare them above here)
+	// when parm updated, update derivative params as well (boardSize, boardArea, etc.)
+	//      - will this happen automatically? input values rollover frame to frame, but
+	//        would other declared variables? Test :D
+	ImGui::End();
+}
+
+void ofApp::stereoCalibrateOnFrame()
+{
+	Mat lGrey;
+	Mat rGrey;
+	//cvtColor(ourFrame, grey, CV_RGB2GRAY);
+	cvtColor(leftMat, lGrey, CV_RGB2GRAY);
+	cvtColor(rightMat, rGrey, CV_RGB2GRAY);
+	toOf(lGrey, cvImage);
+	cvImage.update();
+
+	bool lFound = false;
+	bool rFound = false;
+	lFound = findChessboardCorners(lGrey, boardSize, lCorners, CV_CALIB_CB_ADAPTIVE_THRESH | CV_CALIB_CB_FILTER_QUADS);
+	rFound = findChessboardCorners(rGrey, boardSize, rCorners, CV_CALIB_CB_ADAPTIVE_THRESH | CV_CALIB_CB_FILTER_QUADS);
+
+	if (lFound && rFound)
+	{
+		cornerSubPix(lGrey, lCorners, Size(5, 5), Size(-1, -1), TermCriteria(CV_TERMCRIT_EPS | CV_TERMCRIT_ITER, 30, 0.1));
+		cornerSubPix(rGrey, rCorners, Size(5, 5), Size(-1, -1), TermCriteria(CV_TERMCRIT_EPS | CV_TERMCRIT_ITER, 30, 0.1));
+		drawChessboardCorners(lGrey, boardSize, lCorners, lFound);
+		toOf(lGrey, cvImage);
+		cvImage.update();
+	}
+	else
+	{
+		//printf("No chessboard corners found :/\n");
+		numFramesCaptured -= 1; // if this frame didn't work, we'll have to capture another one.
+	}
+
+	vector<Point3f> obj;
+	for (int i = 0; i < boardHeight; i++)
+	{
+		for (int j = 0; j < boardWidth; j++)
+		{
+			obj.push_back(Point3f((float)j * squareSize, (float)i * squareSize, 0));
+		}
+	}
+
+	if (lFound && rFound)
+	{
+		imagePoints_left.push_back(lCorners);
+		imagePoints_right.push_back(rCorners);
+		objectPoints.push_back(obj);
+	}
+}
+
+void ofApp::stereoCalibrateFinal()
+{
+	//Mat K1, K2;
+	//Mat D1, D2;
+	
+	int flag = 0;
+	flag |= CV_CALIB_FIX_INTRINSIC;
+
+	//K1 = K;
+	//K2 = K;
+	//D1 = D;
+	//D2 = D;
+
+	//stereoCalibrate(objectPoints, imagePoints_left, imagePoints_right, K1, D1, K2, D2, leftMat.size(), R, T, E, F);
+	stereoCalibrate(objectPoints, imagePoints_left, imagePoints_right, K, D, K, D, leftMat.size(), R, T, E, F);
+	stereoRectify(K, D, K, D, leftMat.size(), R, T, lR, rR, lP, rP, Q);
 }
 
 //--------------------------------------------------------------
-void ofApp::draw(){
+void ofApp::draw()
+{
 	//cam1.draw(0, 0);
 	if (leftCameraDraw)
 	{
@@ -592,8 +828,8 @@ void ofApp::drawCameraStatus()
 	ImGui::Begin("PS3 Eye Camera Status", &closeButtonOnWidgets, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Text("Number of cameras attached: %i", numberOfCams);
 	ImGui::Text("Individual camera calibration %s", loadedSingleCalibration ? "is loaded" : "is not loaded");
-	// for (each camera):
-	//     resolution, refresh rate, left/right
+	ImGui::Text("Stereo camera calibration %s", loadedStereoCalibration ? "is loaded" : "is not loaded");
+
 	if (leftCam)
 	{
 		ImGui::Text("\nLeft Camera: ");
@@ -656,15 +892,56 @@ void ofApp::loadSingleCalibration()
 		// parse through all calibration values
 		// if one not present or invalid, set loadedSingleCalibration back to false
 		singleCalibration["K"] >> K;
+		//singleCalibration["oldK"] >> oldK;
 		singleCalibration["D"] >> D;
+		//singleCalibration["regionOfInterest"] >> regionOfInterest;
 		singleCalibration["boardWidth"] >> boardWidth;
 		singleCalibration["boardHeight"] >> boardHeight;
 		singleCalibration["squareSize"] >> squareSize;
 		printf("Successfully loaded singleCameraCalibration.xml\n");
+
+
+		oldK = K;
+		K = getOptimalNewCameraMatrix(oldK, D, leftMat.size(), 0.5, leftMat.size(), regionOfInterest);
+		// creates our quick remap Mats
+		//Mat idMat;
+		//idMat.create(0, 0, CV_8UC1);
+		//undistortMapX.create(leftMat.size(), CV_32FC1);//CV_8UC3);
+		//undistortMapY.create(leftMat.size(), CV_32FC1);
+		//cv::initUndistortRectifyMap(K, D, K, idMat, leftMat.size(), CV_32FC1, undistortMapX, undistortMapY);
 	}
 	else
 	{
 		printf("Couldn't load singleCameraCalibration.xml\n");
+	}
+}
+
+void ofApp::loadStereoCalibration()
+{
+	FileStorage stereoCalibration;
+	loadedStereoCalibration = stereoCalibration.open("../data/stereoCameraCalibration.xml", FileStorage::READ);
+	if (loadedStereoCalibration)
+	{
+		//singleCalibration["K"] >> K;
+		//singleCalibration["D"] >> D;
+		stereoCalibration["K"] >> K;
+		stereoCalibration["D"] >> D;
+		stereoCalibration["R"] >> R;
+		stereoCalibration["T"] >> T;
+		stereoCalibration["E"] >> E;
+		stereoCalibration["F"] >> F;
+
+		stereoCalibration["lR"] >> lR;
+		stereoCalibration["rR"] >> rR;
+		stereoCalibration["lP"] >> lP;
+		stereoCalibration["rP"] >> rP;
+		stereoCalibration["Q"] >> Q;
+
+		printf("Successfully loaded stereoCameraCalibration.xml\n");
+	}
+	else
+	{
+		printf("Couldn't load stereoCameraCalibration.xml\n");
 	}
 }
 
