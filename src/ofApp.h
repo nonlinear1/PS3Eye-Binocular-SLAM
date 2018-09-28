@@ -123,6 +123,7 @@ class ofApp : public ofBaseApp{
 		int cam_width = 640;
 		int cam_height = 480;
 		int cam_refresh = 60;
+		cv::Size cam_size;
 		void initCams();
 		void deInitCams();
 		void drawCameraStatus();

@@ -40,3 +40,4 @@ unsigned char* scannerEye::grabRawFrame()
 	//printf((char*)camRawPixels);
 	return camRawPixels;
 }
+

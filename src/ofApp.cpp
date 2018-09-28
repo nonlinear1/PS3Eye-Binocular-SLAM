@@ -70,6 +70,7 @@ void ofApp::initCams()
 		leftPixels = new unsigned char[leftCam->cam_width * leftCam->cam_height * 3]; // raw image size is (width * height * color channels per pixel) bytes
 		leftCameraDraw = true;
 		leftEyeFrame_scaled.allocate(320, 240, 3);
+		cam_size = Size(leftCam->cam_width, leftCam->cam_height);
 		
 		loadSingleCalibration(); // Loads calibration data if present!
 
@@ -122,6 +123,7 @@ void ofApp::deInitCams()
 
 void ofApp::leftFrameDraw()
 { 
+	toOf(leftMat, leftEyeFrame);
 	leftEyeFrame.resizeTo(leftEyeFrame_scaled);
 	//leftEyeFrame.resize(320, 240, OF_INTERPOLATE_BILINEAR);
 	// IF (notScaled): load leftDrawFrame from leftEyeFrame
@@ -192,8 +194,97 @@ void ofApp::frameUpdater()
 	// if we're drawing the cameras directly:
 	if (leftCam)
 	{
-		leftEyeFrame.setFromPixels(leftCam->grabRawFrame(), leftCam->cam_width, leftCam->cam_height, 3);
-		leftMat = toCv(leftEyeFrame);
+		//leftEyeFrame.setFromPixels(leftCam->grabRawFrame(), leftCam->cam_width, leftCam->cam_height, 3);
+		//leftMat = toCv(leftEyeFrame);
+		//leftMat = Mat(cam_size, CV_8UC3, leftCam->grabRawFrame());
+
+		Mat firstMat = Mat(cam_size, CV_8UC2, leftCam->grabRawFrame());
+		//cout << "M = " << endl << " " << firstMat << endl << endl;
+		//Mat firstMat = Mat(cam_height, cam_width, CV_8UC2, leftCam->grabRawFrame());
+		//cvtColor(firstMat, leftMat,  CV_YUV2RGB_YUYV);
+		leftMat= Mat(cam_size, CV_8UC3);
+		//leftMat = Mat(cam_height, cam_width, CV_8UC3);
+		//cvtColor(firstMat, leftMat, CV_YUV2RGB_YUYV);
+		
+		
+		//leftMat = Mat(cam_size, CV_8UC2, leftCam->grabRawFrame());
+		int r, g, b;
+		int c, d, e;
+		int y, u, v, y2;
+		uchar* ptOld;
+		uchar* ptNew;
+
+		ptOld = firstMat.data; //firstMat.ptr<uchar>(i);
+		ptNew = leftMat.data;
+
+		for (int i = 0, j = 0; i < cam_width * cam_height * 3; i+=6, j+=4) // jump sideways by two because we have yuyv format; we get 2 pixels per u/v pair
+		{
+				u = ptOld[j];
+				y = ptOld[j + 1];
+				v = ptOld[j + 2];
+				y2 = ptOld[j + 3];
+
+				// **** convert first yuv444 value (y, u, v) to rgb888
+				c = y - 16;
+				d = u - 128;
+				e = v - 128;
+				r = ((298 * c) + (409 * e)) >> 8;
+				g = ((298 * c) - (100 * d) - (208 * e) + 128) >> 8;
+				b = ((298 * c) + (516 * d) + 128) >> 8;
+				//r = g = b = y;
+
+
+				// handy clamping trick from https://stackoverflow.com/a/7424900
+				// (fixed their mistake in min(a,b) -- should be *plus* abs(a - b)
+				/*r = r + abs(r) / 2; // won't go below 0
+				g = g + abs(g) / 2;
+				b = b + abs(b) / 2;
+
+				r = r + 255 + abs(r - 255) / 2; // won't go above 255
+				g = g + 255 + abs(g - 255) / 2;
+				b = b + 255 + abs(b - 255) / 2;*/
+			
+				r < 0 ? 0 : r;
+				r > 255 ? 255 : r;
+				g < 0 ? 0 : g;
+				g > 255 ? 255 : g;
+				b < 0 ? 0 : b;
+				b > 255 ? 255 : b;
+
+				ptNew[i] = r;
+				ptNew[i + 1] = g;
+				ptNew[i + 2] = b;
+
+				// **** convert second yuv444 value (y2, u, v) to rgb888
+				c = y2 - 16;
+				d = u - 128;
+				e = v - 128;
+				r = ((298 * c) + (409 * e)) << 8;
+				g = ((298 * c) - (100 * d) - (208 * e) + 128) << 8;
+				b = ((298 * c) + (516 * d) + 128) << 8;
+				
+
+				//r = r + abs(r) / 2; // won't go below 0
+				//g = g + abs(g) / 2;
+				//b = b + abs(b) / 2;
+
+				//r = r + 255 + abs(r - 255) / 2; // won't go above 255
+				//g = g + 255 + abs(g - 255) / 2;
+				//b = b + 255 + abs(b - 255) / 2;
+
+				r < 0 ? 0 : r;
+				r > 255 ? 255 : r;
+				g < 0 ? 0 : g;
+				g > 255 ? 255 : g;
+				b < 0 ? 0 : b;
+				b > 255 ? 255 : b;
+				
+
+				ptNew[i + 3] = r;
+				ptNew[i + 4] = g;
+				ptNew[i + 5] = b;
+		}
+
 	}
 	
 	if (rightCam)
@@ -208,7 +299,8 @@ void ofApp::frameUpdater()
 void ofApp::openCvStuff()
 {
 	
-	convertColor(leftEyeFrame, grey, CV_RGB2GRAY);
+	//convertColor(leftEyeFrame, grey, CV_RGB2GRAY);
+	convertColor(leftMat, grey, CV_RGB2GRAY);
 	Canny(grey, cvImage, thresh1, thresh2, 3);
 	//Sobel(grey, sobel);
 	grey.update();

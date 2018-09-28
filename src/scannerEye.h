@@ -17,15 +17,17 @@ class scannerEye //: public ps3eye::PS3EYECam
 		int cam_refresh;// = 60;
 		bool camStatus = true;
 
-		void initCam(int = 0, int = 640, int = 480, int = 60);
-		void deInitCam();
-		unsigned char* grabRawFrame();
-
 		ps3eye_t* camInstance;
 
 		ofPixels camOfPixels;
 		ofTexture camOfTexture;
 		//unsigned char camRawPixels[921600]; // create size based on widht/height. create in init function
 		unsigned char* camRawPixels;
+
+		void initCam(int = 0, int = 640, int = 480, int = 60);
+		void deInitCam();
+		unsigned char* grabRawFrame();
+
 		// cv::Mat camMat; // output directly to Mat using a Mat constructor?
+
 };
