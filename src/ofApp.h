@@ -98,14 +98,14 @@ class ofApp : public ofBaseApp{
 		int numDisp = 48;//16;//144; // 16?
 		int preFilterCap = 63;
 		int minDisp = -39;
-		int uniquenessRatio = 10;
-		int speckleWindowSize = 10;//100;
-		int speckleRange = 32;
+		int uniquenessRatio = 0;// 10;
+		int speckleWindowSize = 0;// 10;//100;
+		int speckleRange = 8;// 32;
 		int disp12MaxDiff = 1;
 		bool fullDP = false;
 		int P1 = 480;
 		int P2 = 640;
-		int blockSize = 21;// 15;// 21;//13;
+		int blockSize = 5;//21;// 15;// 21;//13;
 		int mode = 0;
 
 		cv::Mat leftImg, rightImg, leftDisp, rightDisp, leftDsc, rightDesc;
